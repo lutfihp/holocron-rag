@@ -34,5 +34,5 @@ def test_role_can_see_uses_max_clearance():
 
 
 def test_departments_listed():
-    expected = {"hr", "security", "engineering", "fleet_operations", "procurement"}
+    expected = {"hr", "security", "engineering", "fleet_operations", "procurement", "it"}
     assert {d.value for d in Department} == expected

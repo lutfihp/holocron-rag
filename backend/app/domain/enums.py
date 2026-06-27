@@ -45,3 +45,4 @@ class Department(str, Enum):
     ENGINEERING = "engineering"
     FLEET_OPERATIONS = "fleet_operations"
     PROCUREMENT = "procurement"
+    IT = "it"
