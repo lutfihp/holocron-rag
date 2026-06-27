@@ -31,3 +31,6 @@ Thumbs.db
 # Build artifacts
 dist/
 build/
+
+# Superpowers visual brainstorm sessions
+.superpowers/
