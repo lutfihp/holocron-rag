@@ -20,6 +20,8 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     engine = create_async_engine(settings.test_database_url, poolclass=NullPool)
     try:
         async with engine.begin() as conn:
+            await conn.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS vector;")
+            await conn.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
         Session = async_sessionmaker(bind=engine, expire_on_commit=False)
