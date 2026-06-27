@@ -1,6 +1,6 @@
 PY := .venv/Scripts/python
 
-.PHONY: help backend-venv backend-install backend-migrate backend-seed backend-test frontend-install dev
+.PHONY: help backend-venv backend-install backend-migrate backend-seed seed-corpus backend-test frontend-install dev
 
 help:
 	@echo "Targets:"
@@ -8,6 +8,7 @@ help:
 	@echo "  backend-install   - install Python deps into .venv (creates venv if missing)"
 	@echo "  backend-migrate   - run alembic upgrade head"
 	@echo "  backend-seed      - seed the Imperial tenant and demo users"
+	@echo "  seed-corpus       - ingest the corpus/ directory into the live DB"
 	@echo "  backend-test      - run pytest"
 	@echo "  frontend-install  - install pnpm deps"
 	@echo "  dev               - start backend + frontend (requires postgres+redis up)"
@@ -25,6 +26,9 @@ backend-migrate:
 
 backend-seed:
 	cd backend && $(PY) scripts/seed_users.py
+
+seed-corpus:
+	cd backend && $(PY) scripts/seed_corpus.py
 
 backend-test:
 	cd backend && $(PY) -m pytest -v
