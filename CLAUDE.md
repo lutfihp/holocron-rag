@@ -11,16 +11,34 @@
 1. **Design spec:** [docs/superpowers/specs/2026-06-27-holocron-design.md](docs/superpowers/specs/2026-06-27-holocron-design.md) — full product, architecture, data model, MVP phasing
 2. **Phase A plan + completion:** [plan](docs/superpowers/plans/2026-06-27-phase-a-foundation.md) · [completion](docs/superpowers/plans/2026-06-27-phase-a-foundation-completion.md)
 3. **Phase B spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-27-phase-b-ingestion-retrieval.md) · [plan](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval.md) · [completion](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval-completion.md)
-4. **Original brief:** [initial_idea.txt](initial_idea.txt) — untracked; the user's starting prompt
+4. **Phase C spec + plan:** [spec](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md) · [plan](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) — **plan is ready to execute; brainstorming is done**
+5. **Original brief:** [initial_idea.txt](initial_idea.txt) — untracked; the user's starting prompt
 
 ## Phase status
 
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
-- **Phase C — Conflict Detection + Frontend:** ⏭ next — see spec §10.3
+- **Phase C — Conflict Detection + Frontend:** 📋 spec + plan written, ready to execute (no code yet)
 - **Phase D — Eval + Audit + Polish:** pending — see spec §10.4
 
-When starting Phase C, run **superpowers:brainstorming** first (concrete locked decisions are likely needed: Groq model fallback strategy, conflict-cache eviction policy, frontend state shape), then **superpowers:writing-plans** against §10.3.
+## Resuming Phase C
+
+The brainstorming pass is **complete**. Do NOT re-run `superpowers:brainstorming` for Phase C. All 13 architectural decisions are locked in the spec at [docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md §1.3](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md). The implementation plan at [docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) breaks the work into **19 TDD tasks**.
+
+**To resume**, invoke either:
+- `superpowers:subagent-driven-development` (recommended) — fresh subagent per task, review checkpoints between
+- `superpowers:executing-plans` — inline batched execution with checkpoints
+
+against the plan at `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md`.
+
+**Phase C scope at a glance** (read the spec for the full version):
+- Entity extraction at ingest via **spaCy `en_core_web_sm`** (NER + lemma-lowered noun_chunks) → populates `chunks.entities`
+- Conflict detection: heuristic prefilter (lineage / same-dept ≥2 entities / cross-dept ≥3 entities, capped at 4 pairs) → Groq LLM-as-judge with module-global LRU cache (256, sorted-pair key)
+- Answer generation: LlamaIndex `CompactAndRefine` *pattern* (compact context → single LLM call) with custom inline `[n]` citation template and conflict-aware prose
+- Groq client: `llama-3.3-70b-versatile` primary → `llama-3.1-8b-instant` fallback on 429, 6-attempt ladder (3+3 backoff 0.5/1/2s)
+- `POST /chat/ask` returns answer + only-cited-citations + conflicts + refusal; writes `query` + `response` + (optional) `refusal` audit rows
+- `/chat` frontend: in-page chat thread (React state only, no persistence), inline `[n]` chips scroll to citation cards via hash anchors
+- **Out of scope for Phase C** (deferred to D): `/admin/documents`, `/admin/audit`, disk LLM cache, structlog→JSON, eval harness
 
 ## Tech stack as actually built (not what the spec listed)
 
@@ -133,14 +151,11 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 ## What's needed before Phase C starts
 
-1. **Groq API key.** Phase C's first network LLM call. Get one from [console.groq.com](https://console.groq.com/keys), add to `backend/.env`:
-   ```
-   GROQ_API_KEY=gsk_...
-   LLM_MODEL=llama-3.3-70b-versatile
-   ```
-   Phase C plan will add `Settings.groq_api_key` to [config.py](backend/app/core/config.py).
+1. **Groq API key.** ✅ Already added to `backend/.env` by the user. The plan's Task 0 adds `Settings.groq_api_key`, `llm_primary_model`, `llm_fallback_model` to [config.py](backend/app/core/config.py) — env names: `GROQ_API_KEY`, `LLM_PRIMARY_MODEL`, `LLM_FALLBACK_MODEL` (the latter two default to `llama-3.3-70b-versatile` and `llama-3.1-8b-instant`, so only `GROQ_API_KEY` is strictly required to be set).
 
-2. **Frontend Docker build retry.** Still failing on Docker Desktop networking quirk. Phase A and B both work fine with `pnpm dev`. Retry `docker compose build frontend` when the network is healthy.
+2. **spaCy model download.** Phase C Task 0 includes `python -m spacy download en_core_web_sm` as a one-time step (~50 MB). This runs as part of the plan; user does not need to do it ahead of time.
+
+3. **Frontend Docker build retry.** Still failing on Docker Desktop networking quirk. Phase A and B both work fine with `pnpm dev`. Retry `docker compose build frontend` when the network is healthy. Not blocking for Phase C.
 
 ## Known follow-ups carried into Phase C / D
 
