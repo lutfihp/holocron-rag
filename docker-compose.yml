@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: holocron
       POSTGRES_DB: holocron
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro

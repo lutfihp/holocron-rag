@@ -260,7 +260,7 @@ services:
       POSTGRES_PASSWORD: holocron
       POSTGRES_DB: holocron
     ports:
-      - "5432:5432"
+      - "5433:5432"   # host:container — 5433 avoids conflict with any host Postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro
@@ -401,8 +401,8 @@ async def health() -> dict[str, str]:
 
 ```bash
 # Backend
-DATABASE_URL=postgresql+asyncpg://holocron:holocron@localhost:5432/holocron
-TEST_DATABASE_URL=postgresql+asyncpg://holocron:holocron@localhost:5432/holocron_test
+DATABASE_URL=postgresql+asyncpg://holocron:holocron@localhost:5433/holocron
+TEST_DATABASE_URL=postgresql+asyncpg://holocron:holocron@localhost:5433/holocron_test
 JWT_SECRET=change-me-in-prod-this-is-only-for-local-dev
 JWT_ALGORITHM=HS256
 JWT_TTL_HOURS=24
@@ -2708,7 +2708,7 @@ services:
       POSTGRES_PASSWORD: holocron
       POSTGRES_DB: holocron
     ports:
-      - "5432:5432"
+      - "5433:5432"   # host:container — 5433 avoids conflict with any host Postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro
