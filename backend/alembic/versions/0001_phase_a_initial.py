@@ -30,18 +30,23 @@ def upgrade() -> None:
         """
     )
 
-    op.execute("CREATE TYPE clearance_level AS ENUM ('public','restricted','secret','top_secret');")
+    # Classification levels are enforced via CHECK constraints (TEXT column) rather
+    # than a Postgres ENUM type. ENUMs require explicit casts via asyncpg and add
+    # friction to test schema setup; CHECK gives the same validation, plays nicely
+    # with SQLAlchemy's String type, and is trivial to extend later.
+    clearance_check = "max_clearance IN ('public','restricted','secret','top_secret')"
+    classification_check = "classification IN ('public','restricted','secret','top_secret')"
 
     op.execute(
-        """
+        f"""
         CREATE TABLE users (
             id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             tenant_id       UUID NOT NULL REFERENCES tenants(id),
             username        TEXT NOT NULL,
             password_hash   TEXT NOT NULL,
             role            TEXT NOT NULL CHECK (role IN ('employee','manager','director','executive')),
-            max_clearance   clearance_level NOT NULL,
-            departments     TEXT[] NOT NULL DEFAULT '{}',
+            max_clearance   TEXT NOT NULL CHECK ({clearance_check}),
+            departments     TEXT[] NOT NULL DEFAULT '{{}}',
             created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
             UNIQUE (tenant_id, username)
         );
@@ -49,13 +54,13 @@ def upgrade() -> None:
     )
 
     op.execute(
-        """
+        f"""
         CREATE TABLE documents (
             id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             tenant_id       UUID NOT NULL REFERENCES tenants(id),
             title           TEXT NOT NULL,
             source_uri      TEXT,
-            classification  clearance_level NOT NULL,
+            classification  TEXT NOT NULL CHECK ({classification_check}),
             department      TEXT NOT NULL,
             version         TEXT NOT NULL,
             effective_date  DATE NOT NULL,
@@ -67,7 +72,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        """
+        f"""
         CREATE TABLE chunks (
             id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             tenant_id       UUID NOT NULL REFERENCES tenants(id),
@@ -76,11 +81,11 @@ def upgrade() -> None:
             text            TEXT NOT NULL,
             text_tsv        TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', text)) STORED,
             embedding       VECTOR(768),
-            classification  clearance_level NOT NULL,
+            classification  TEXT NOT NULL CHECK ({classification_check}),
             department      TEXT NOT NULL,
             effective_date  DATE NOT NULL,
             lineage_id      UUID NOT NULL,
-            entities        TEXT[] NOT NULL DEFAULT '{}',
+            entities        TEXT[] NOT NULL DEFAULT '{{}}',
             created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
         );
         """
@@ -123,5 +128,4 @@ def downgrade() -> None:
     op.execute("DROP TABLE IF EXISTS chunks;")
     op.execute("DROP TABLE IF EXISTS documents;")
     op.execute("DROP TABLE IF EXISTS users;")
-    op.execute("DROP TYPE  IF EXISTS clearance_level;")
     op.execute("DROP TABLE IF EXISTS tenants;")
