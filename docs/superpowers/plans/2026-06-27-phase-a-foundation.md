@@ -507,9 +507,10 @@ Expected: `ModuleNotFoundError: No module named 'app.core.config'`.
 
 ```python
 from functools import lru_cache
+from typing import Annotated
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -522,7 +523,7 @@ class Settings(BaseSettings):
     jwt_ttl_hours: int = 24
     cookie_name: str = "holocron_session"
     cookie_secure: bool = False
-    cors_origins: list[str] = Field(default_factory=list)
+    cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -536,6 +537,8 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
 ```
+
+> The `Annotated[..., NoDecode]` wrapper is critical: pydantic-settings v2.x tries to JSON-parse env vars typed as `list[str]` *before* validators run, so a comma-separated value would fail. `NoDecode` defers parsing to our `_split_csv` validator.
 
 - [ ] **Step 5: Run the test, verify pass**
 
