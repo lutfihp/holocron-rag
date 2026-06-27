@@ -50,3 +50,27 @@ class FakeEmbeddingProvider:
 
     def embed_batch(self, texts: list[str]) -> list[np.ndarray]:
         return [self.embed_one(t) for t in texts]
+
+
+class BgeEmbeddingProvider:
+    """Local BAAI/bge-base-en-v1.5 via sentence-transformers (768-dim).
+
+    First instantiation downloads ~440 MB. Subsequent runs are cached in
+    HF_HOME (default ~/.cache/huggingface)."""
+
+    _MODEL_NAME = "BAAI/bge-base-en-v1.5"
+
+    def __init__(self) -> None:
+        from sentence_transformers import SentenceTransformer  # heavy import; defer
+
+        self._model = SentenceTransformer(self._MODEL_NAME)
+
+    def embed_one(self, text: str) -> np.ndarray:
+        v = self._model.encode(text, normalize_embeddings=True, convert_to_numpy=True)
+        return np.asarray(v, dtype=np.float32)
+
+    def embed_batch(self, texts: list[str]) -> list[np.ndarray]:
+        arr = self._model.encode(
+            texts, normalize_embeddings=True, convert_to_numpy=True, batch_size=32
+        )
+        return [np.asarray(row, dtype=np.float32) for row in arr]
