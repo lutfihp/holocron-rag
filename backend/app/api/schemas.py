@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import uuid
 
 from pydantic import BaseModel, Field
@@ -24,3 +25,30 @@ class UserSummary(BaseModel):
     max_clearance: str
     departments: list[str]
     tenant: TenantSummary
+
+
+class SearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=2000)
+    top_k: int = Field(default=6, ge=1, le=50)
+
+
+class SearchResultItem(BaseModel):
+    chunk_id: uuid.UUID
+    document_id: uuid.UUID
+    document_title: str
+    classification: str
+    department: str
+    effective_date: dt.date
+    snippet: str
+    score: float
+    rank: int
+
+
+class RefusalSummary(BaseModel):
+    withheld_count: int
+    reference_id: str
+
+
+class SearchResponseBody(BaseModel):
+    results: list[SearchResultItem]
+    refusal: RefusalSummary | None = None
