@@ -20,6 +20,7 @@ async def record_refusal(
     *,
     tenant_id: uuid.UUID,
     user_id: uuid.UUID,
+    correlation_id: uuid.UUID,
     retrieved_ids: Sequence[uuid.UUID],
     withheld_ids: Sequence[uuid.UUID],
 ) -> str:
@@ -27,6 +28,7 @@ async def record_refusal(
     await audit.insert_refusal(
         tenant_id=tenant_id,
         user_id=user_id,
+        correlation_id=correlation_id,
         reference_id=ref,
         retrieved_ids=retrieved_ids,
         withheld_ids=withheld_ids,

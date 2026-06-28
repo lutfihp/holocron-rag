@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from time import perf_counter
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -43,6 +44,8 @@ async def post_ask(
     if not body.query.strip():
         raise HTTPException(status_code=400, detail="query must be non-empty")
 
+    correlation_id = uuid.uuid4()
+
     ctx = ClearanceContext(
         tenant_id=tenant_ctx.tenant_id,
         user_id=tenant_ctx.user_id,
@@ -56,6 +59,7 @@ async def post_ask(
         ctx=ctx,
         embedder=embedder,
         query=body.query,
+        correlation_id=correlation_id,
         top_k=body.top_k,
     )
     results = list(search_resp.results)
@@ -95,6 +99,7 @@ async def post_ask(
     await audit.insert_response(
         tenant_id=ctx.tenant_id,
         user_id=ctx.user_id,
+        correlation_id=correlation_id,
         response_text=answer.text,
         conflicts_found={
             "count": len(answer.conflicts),

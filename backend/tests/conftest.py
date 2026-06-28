@@ -64,3 +64,23 @@ async def empire_tenant(db_session: AsyncSession) -> Tenant:
     db_session.add(tenant)
     await db_session.flush()
     return tenant
+
+
+@pytest_asyncio.fixture
+async def seeded_tenant_user(db_session: AsyncSession, empire_tenant: Tenant):
+    """Phase D: minimal tenant + user pair returning (tenant_id, user_id)."""
+    from app.core.security import hash_password
+    from app.domain.enums import ClearanceLevel, Role
+    from app.domain.models import User
+    user = User(
+        id=uuid.uuid4(),
+        tenant_id=empire_tenant.id,
+        username="phase-d-fixture",
+        password_hash=hash_password("imperial-march"),
+        role=Role.EMPLOYEE.value,
+        max_clearance=ClearanceLevel.PUBLIC.value,
+        departments=["hr"],
+    )
+    db_session.add(user)
+    await db_session.flush()
+    return empire_tenant.id, user.id

@@ -78,12 +78,19 @@ class ChunkRepository:
         )
         return [
             ChunkHit(
-                chunk_id=row[0], document_id=row[1], document_title=row[2],
-                classification=row[3], department=row[4], effective_date=row[5],
-                snippet=_snippet(row[6]), score=float(row[9]), rank=i + 1,
-                lineage_id=row[7], entities=list(row[8] or []),
+                chunk_id=row["id"],
+                document_id=row["document_id"],
+                document_title=row["title"],
+                classification=row["classification"],
+                department=row["department"],
+                effective_date=row["effective_date"],
+                snippet=_snippet(row["text"]),
+                score=float(row["score"]),
+                rank=i + 1,
+                lineage_id=row["lineage_id"],
+                entities=list(row["entities"] or []),
             )
-            for i, row in enumerate(result.fetchall())
+            for i, row in enumerate(result.mappings().all())
         ]
 
     async def vector_topn(
@@ -116,14 +123,19 @@ class ChunkRepository:
         )
         return [
             ChunkHit(
-                chunk_id=row[0], document_id=row[1], document_title=row[2],
-                classification=row[3], department=row[4], effective_date=row[5],
-                snippet=_snippet(row[6]),
-                score=1.0 - float(row[9]),  # cosine similarity
+                chunk_id=row["id"],
+                document_id=row["document_id"],
+                document_title=row["title"],
+                classification=row["classification"],
+                department=row["department"],
+                effective_date=row["effective_date"],
+                snippet=_snippet(row["text"]),
+                score=1.0 - float(row["distance"]),  # cosine similarity
                 rank=i + 1,
-                lineage_id=row[7], entities=list(row[8] or []),
+                lineage_id=row["lineage_id"],
+                entities=list(row["entities"] or []),
             )
-            for i, row in enumerate(result.fetchall())
+            for i, row in enumerate(result.mappings().all())
         ]
 
     async def unfiltered_topn_ids(
@@ -162,7 +174,10 @@ class ChunkRepository:
         vec_res = await self._session.execute(
             vec, {"tenant": tenant_id, "qv": _vec_literal(query_vector), "n": n}
         )
-        return {r[0] for r in bm_res.fetchall()} | {r[0] for r in vec_res.fetchall()}
+        return (
+            {r["id"] for r in bm_res.mappings().all()}
+            | {r["id"] for r in vec_res.mappings().all()}
+        )
 
 
 def _snippet(text: str, *, max_len: int = 280) -> str:

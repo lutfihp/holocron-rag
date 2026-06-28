@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,7 +31,7 @@ async def post_search(
     )
     response = await search(
         session=session, ctx=ctx, embedder=embedder,
-        query=body.query, top_k=body.top_k,
+        query=body.query, correlation_id=uuid.uuid4(), top_k=body.top_k,
     )
     return SearchResponseBody(
         results=[

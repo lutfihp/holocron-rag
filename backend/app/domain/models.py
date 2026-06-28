@@ -122,6 +122,7 @@ class AuditEvent(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    correlation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     event_type: Mapped[str] = mapped_column(String, nullable=False)
     query_text: Mapped[str | None] = mapped_column(String, nullable=True)
     retrieved_ids: Mapped[list[uuid.UUID] | None] = mapped_column(

@@ -53,7 +53,7 @@ async def test_search_returns_only_allowed_results(db_session, empire_tenant):
 
     ctx = _ctx(empire_tenant.id, "public", ["hr"])
     response = await search(
-        session=db_session, ctx=ctx, embedder=fake, query="dress code", top_k=6
+        session=db_session, ctx=ctx, embedder=fake, query="dress code", correlation_id=uuid.uuid4(), top_k=6
     )
     assert all(r.classification == "public" for r in response.results)
     assert response.refusal is not None
@@ -70,7 +70,7 @@ async def test_search_no_refusal_when_executive(db_session, empire_tenant):
 
     ctx = _ctx(empire_tenant.id, "top_secret", ["hr"])
     response = await search(
-        session=db_session, ctx=ctx, embedder=fake, query="dress code", top_k=6
+        session=db_session, ctx=ctx, embedder=fake, query="dress code", correlation_id=uuid.uuid4(), top_k=6
     )
     assert len(response.results) >= 2
     assert response.refusal is None
@@ -83,7 +83,7 @@ async def test_search_writes_query_audit_row(db_session, empire_tenant):
                 classification="public", department="hr", embedder=fake)
 
     ctx = _ctx(empire_tenant.id, "public", ["hr"])
-    await search(session=db_session, ctx=ctx, embedder=fake, query="public", top_k=6)
+    await search(session=db_session, ctx=ctx, embedder=fake, query="public", correlation_id=uuid.uuid4(), top_k=6)
     await db_session.flush()
 
     rows = (

@@ -16,6 +16,7 @@ async def test_insert_response_writes_row(db_session, empire_tenant: Tenant):
     await repo.insert_response(
         tenant_id=empire_tenant.id,
         user_id=user_id,
+        correlation_id=uuid.uuid4(),
         response_text="The answer.",
         conflicts_found={"count": 1, "subjects": ["dress code"]},
         latency_ms=412,

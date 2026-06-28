@@ -28,6 +28,7 @@ async def test_record_refusal_persists_audit_row(db_session, empire_tenant):
         audit,
         tenant_id=empire_tenant.id,
         user_id=user,
+        correlation_id=uuid.uuid4(),
         retrieved_ids=[],
         withheld_ids=withheld,
     )

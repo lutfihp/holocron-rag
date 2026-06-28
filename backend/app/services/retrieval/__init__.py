@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +22,7 @@ async def search(
     ctx: ClearanceContext,
     embedder: EmbeddingProvider,
     query: str,
+    correlation_id: uuid.UUID,
     top_k: int = 6,
 ) -> SearchResponse:
     if not query.strip():
@@ -76,6 +78,7 @@ async def search(
             audit,
             tenant_id=ctx.tenant_id,
             user_id=ctx.user_id,
+            correlation_id=correlation_id,
             retrieved_ids=retrieved_for_audit,
             withheld_ids=withheld_ids,
         )
@@ -88,6 +91,7 @@ async def search(
     await audit.insert_query(
         tenant_id=ctx.tenant_id,
         user_id=ctx.user_id,
+        correlation_id=correlation_id,
         query_text=query,
         retrieved_ids=retrieved_for_audit,
     )

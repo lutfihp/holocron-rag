@@ -65,6 +65,7 @@ async def test_can_insert_audit_event(db_session, empire_tenant):
     evt = AuditEvent(
         tenant_id=empire_tenant.id,
         user_id=uuid.uuid4(),
+        correlation_id=uuid.uuid4(),
         event_type="query",
         query_text="hello",
         retrieved_ids=[uuid.uuid4()],

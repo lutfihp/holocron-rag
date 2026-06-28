@@ -112,6 +112,22 @@ async def test_chat_ask_returns_full_payload(
 
 
 @pytest.mark.asyncio
+async def test_chat_ask_audit_rows_share_correlation_id(
+    client, db_session, empire_tenant, seeded_executive, seeded_chunk
+):
+    from sqlalchemy import select
+    from app.domain.models import AuditEvent
+
+    await _login(client, empire_tenant.id, "ex-proc", "imperial-march")
+    resp = await client.post("/chat/ask", json={"query": "credit threshold", "top_k": 6})
+    assert resp.status_code == 200
+
+    rows = (await db_session.execute(select(AuditEvent))).scalars().all()
+    assert len(rows) >= 2  # query + response (refusal optional)
+    assert len({r.correlation_id for r in rows}) == 1
+
+
+@pytest.mark.asyncio
 async def test_chat_ask_unauthenticated_is_401(client):
     resp = await client.post("/chat/ask", json={"query": "q"})
     assert resp.status_code == 401

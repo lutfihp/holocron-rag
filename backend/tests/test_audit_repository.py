@@ -15,6 +15,7 @@ async def test_insert_query_event(db_session, empire_tenant):
     await repo.insert_query(
         tenant_id=empire_tenant.id,
         user_id=user_id,
+        correlation_id=uuid.uuid4(),
         query_text="dress code policy",
         retrieved_ids=retrieved,
     )
@@ -34,6 +35,7 @@ async def test_insert_refusal_event(db_session, empire_tenant):
     await repo.insert_refusal(
         tenant_id=empire_tenant.id,
         user_id=user_id,
+        correlation_id=uuid.uuid4(),
         reference_id="A7F2-CXJK",
         retrieved_ids=[],
         withheld_ids=withheld,
