@@ -18,27 +18,10 @@
 
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
-- **Phase C — Conflict Detection + Frontend:** 📋 spec + plan written, ready to execute (no code yet)
-- **Phase D — Eval + Audit + Polish:** pending — see spec §10.4
+- **Phase C — Conflict Detection + Frontend:** ✅ done (entity extraction, conflict detection, answer generation, /chat frontend)
+- **Phase D — Eval + Audit + Polish:** ⏭ next
 
-## Resuming Phase C
-
-The brainstorming pass is **complete**. Do NOT re-run `superpowers:brainstorming` for Phase C. All 13 architectural decisions are locked in the spec at [docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md §1.3](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md). The implementation plan at [docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) breaks the work into **19 TDD tasks**.
-
-**To resume**, invoke either:
-- `superpowers:subagent-driven-development` (recommended) — fresh subagent per task, review checkpoints between
-- `superpowers:executing-plans` — inline batched execution with checkpoints
-
-against the plan at `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md`.
-
-**Phase C scope at a glance** (read the spec for the full version):
-- Entity extraction at ingest via **spaCy `en_core_web_sm`** (NER + lemma-lowered noun_chunks) → populates `chunks.entities`
-- Conflict detection: heuristic prefilter (lineage / same-dept ≥2 entities / cross-dept ≥3 entities, capped at 4 pairs) → Groq LLM-as-judge with module-global LRU cache (256, sorted-pair key)
-- Answer generation: LlamaIndex `CompactAndRefine` *pattern* (compact context → single LLM call) with custom inline `[n]` citation template and conflict-aware prose
-- Groq client: `llama-3.3-70b-versatile` primary → `llama-3.1-8b-instant` fallback on 429, 6-attempt ladder (3+3 backoff 0.5/1/2s)
-- `POST /chat/ask` returns answer + only-cited-citations + conflicts + refusal; writes `query` + `response` + (optional) `refusal` audit rows
-- `/chat` frontend: in-page chat thread (React state only, no persistence), inline `[n]` chips scroll to citation cards via hash anchors
-- **Out of scope for Phase C** (deferred to D): `/admin/documents`, `/admin/audit`, disk LLM cache, structlog→JSON, eval harness
+Phase C resume guide is no longer needed; see the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md) for state, deviations, and Phase D follow-ups.
 
 ## Tech stack as actually built (not what the spec listed)
 
@@ -51,7 +34,8 @@ against the plan at `docs/superpowers/plans/2026-06-28-phase-c-conflict-detectio
 | Postgres | pgvector/pgvector:pg16 via Docker | **Host port 5433** (not 5432) — avoids conflict with user's existing host Postgres install |
 | Redis | redis:7-alpine via Docker | Not wired yet; for arq jobs (deferred — not in MVP) |
 | Embeddings | **Local `BAAI/bge-base-en-v1.5`** (768-dim) via sentence-transformers | NOT Gemini. PyTorch CPU is installed (~1.5 GB). First model load downloads ~440 MB, cached at `~/.cache/huggingface`. |
-| LLM | **Groq `llama-3.3-70b-versatile`** (Phase C only — not wired yet) | NOT Gemini. Replaces spec's Gemini Flash. Free API; needs `GROQ_API_KEY` env var when Phase C starts. |
+| LLM | **Groq `llama-3.3-70b-versatile`** primary → `llama-3.1-8b-instant` fallback | NOT Gemini. Replaces spec's Gemini Flash. Free API; needs `GROQ_API_KEY` env var. |
+| NLP | **spaCy `en_core_web_sm`** (NER + lemma-lowered noun_chunks) for ingest-time entity extraction | One-time `python -m spacy download en_core_web_sm` (~50 MB). Full default pipeline (parser + lemmatizer required). |
 | RAG library | LlamaIndex `SentenceSplitter` (not `SemanticSplitter`) | Spec called for SemanticSplitter; deferred — quality lift was marginal and ingest cost doubled. Revisit in Phase D if eval signals demand it. |
 | Frontend | Next.js 15.0.0, React 19 RC, TypeScript, Tailwind v3, shadcn/ui | App Router, no `src/` dir |
 | Frontend pkg mgr | pnpm 11 — **one-time `pnpm approve-builds --all`** required after fresh install (sharp + unrs-resolver) |
@@ -80,6 +64,16 @@ against the plan at `docs/superpowers/plans/2026-06-28-phase-c-conflict-detectio
 - **First `/retrieval/search` call after a fresh uvicorn process takes ~60s.** Lazy BGE load via the `lru_cache` singleton. Subsequent calls are fast. Bump HTTP client timeouts when smoke-testing.
 - **`text_tsv` uses `Computed(persisted=True)` in the ORM but reads use raw SQL.** `bm25_topn` and friends use `sqlalchemy.text(...)` for the `plainto_tsquery` + `ts_rank` calls — cleaner inline than expression builder.
 
+### Phase C additions
+
+- **`chunks.entities` is now populated by spaCy at ingest.** The entity extractor (`services/ingestion/entity_extractor.py`) uses the full default spaCy pipeline — the plan's original `disable=["parser","lemmatizer"]` was removed during execution because `parser` is required for `doc.noun_chunks` (raises E029) and `lemmatizer` is required for `token.lemma_` to return non-empty strings.
+- **`LLMClient` Protocol covers BOTH the conflict-judge path (`complete_json`) and the answer-generation path (`complete_text`).** Production = `GroqLLMClient` with 6-attempt retry ladder (3 primary + 3 fallback). Final-attempt sleep is skipped to avoid wasted tail latency. Tests inject `FakeLLMClient` with scripted responses.
+- **Conflict cache is module-global in `services/conflict_detection/judge.py`** keyed on sorted `(chunk_id_a, chunk_id_b)` tuples, capacity 256, FIFO-evicted (labelled LRU in the spec — functional difference is zero at this cap). Cleared by `_judge_cache_clear()` in tests; transient `LLMUnavailable` failures are NOT cached.
+- **`RetrievalResult` now carries `lineage_id: uuid.UUID` and `entities: tuple[str, ...]`** so the conflict prefilter has everything it needs without a second DB round-trip. Phase B's `ChunkHit` and `ChunkRepository` SELECTs were updated accordingly.
+- **`services/answer_generation/` implements the LlamaIndex `CompactAndRefine` *pattern*** (compact context block + single LLM call) without using the LlamaIndex synthesizer object directly. This keeps the retry/fallback policy in one place and tests deterministic. The refine template (`REFINE_TEMPLATE_STR`) is provided for future use; not currently exercised because top-k=6 (~3K tokens) fits in one compaction.
+- **`generate_answer` re-assigns `Position.marker`** from the chunk-position index in the final list (judge emits `marker=0` as a sentinel). API marker numbering and `[n]` chip targets in the frontend all share the same enumeration of the unfiltered retrieval results — the citations list filters to only-cited but preserves the original marker.
+- **`POST /chat/ask` returns `LLMUnavailable` as HTTP 503**; latency is measured across the full retrieval+detection+generation chain and written to `audit_events.latency_ms`.
+
 ## Local dev quickstart
 
 ```powershell
@@ -92,6 +86,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"           # ~1.5 GB; pulls PyTorch CPU
+python -m spacy download en_core_web_sm     # one-time, ~50 MB
 python -m alembic upgrade head
 python scripts/seed_users.py                # prints tenant id + seeded usernames
 python scripts/seed_corpus.py               # ~130s first run (BGE download ~440 MB)
@@ -117,7 +112,7 @@ Open <http://localhost:3000>, log in with `executive.fleet` / `imperial-march`.
 cd backend && .\.venv\Scripts\Activate.ps1 && python -m pytest -v
 ```
 
-Currently: **88 tests, all passing** (default `-m 'not slow'`, ~25 s). Plus 2 opt-in BGE slow tests (`pytest -m slow`).
+Currently: **131 tests, all passing** (default `-m 'not slow'`, ~28–32 s). Plus 4 opt-in slow tests (`pytest -m slow`): 2 real-BGE from Phase B + 2 real-spaCy from Phase C.
 
 **Known flake:** `tests/test_security.py::test_tampered_token_rejected` flakes occasionally — Phase A test that random-mutates JWT bytes and has non-zero false-pass probability. Always passes on rerun. Hardening deferred to Phase D.
 
@@ -157,13 +152,17 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 3. **Frontend Docker build retry.** Still failing on Docker Desktop networking quirk. Phase A and B both work fine with `pnpm dev`. Retry `docker compose build frontend` when the network is healthy. Not blocking for Phase C.
 
-## Known follow-ups carried into Phase C / D
+## Known follow-ups carried into Phase D
 
-- **Entity extraction at ingest.** `chunks.entities` is currently always `[]`. Phase C populates it for the heuristic conflict prefilter.
 - **structlog → JSON stdout.** Spec §2 puts this in Phase D.
 - **arq + Redis re-embed worker.** Deferred — not in MVP.
 - **`chunk_size=512` may be too large** for our ~600–1500 word docs (39 chunks across 18 docs). Phase D eval will tell us if we want finer granularity.
 - **Backend without `--reload` doesn't auto-reload code changes.** A stale uvicorn caught me during Phase B smoke. Document in dev docs if it bites others.
+- **`llama-index-llms-groq` version range deviated from spec** (`>=0.2,<0.3` → `>=0.3,<0.4`) because 0.2.x requires `llama-index-core<0.12` which conflicts with Phase B's locked core. Plan/spec should be updated to reflect actual constraint.
+- **The `_sleep` seam in `GroqLLMClient`** uses an `inspect.isawaitable` shim to allow sync test monkeypatches AND awaitable production behavior. Worth simplifying in Phase D — either standardize on `async lambda` in tests or switch to dependency-injection of a sleep function.
+- **`ChunkRepository` SELECT row-index reads are now positional** (`row[7]` for lineage_id, `row[9]` for score, etc.). Adding more columns would silently shift indices. Phase D should migrate to `.mappings()` for named column access before the next schema addition.
+- **Phase A's `ClearanceBadge` component had prop `level: ClearanceLevel`**; renamed to `classification: Clearance` to match Phase C's chat type. The Phase A consumer at `frontend/app/me/page.tsx` was updated in the same Task 15 commit (one-line rename).
+- **Pre-existing tsc error in `frontend/app/layout.tsx`** (Phase A scaffold imports `Geist`/`Geist_Mono` which the installed `next/font` version does not expose). Phase D should either upgrade `next` or swap the layout to use `Inter`. Does not block dev server.
 
 ## How to collaborate with this user
 
