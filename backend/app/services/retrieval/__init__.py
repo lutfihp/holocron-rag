@@ -62,6 +62,7 @@ async def search(
                 document_title=h.document_title, classification=h.classification,
                 department=h.department, effective_date=h.effective_date,
                 snippet=h.snippet, score=score, rank=fused_rank,
+                lineage_id=h.lineage_id, entities=tuple(h.entities or ()),
             )
         )
 

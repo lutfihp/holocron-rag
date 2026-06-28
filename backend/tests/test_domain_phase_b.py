@@ -43,6 +43,8 @@ def test_retrieval_result_required_fields():
         snippet="...",
         score=0.5,
         rank=1,
+        lineage_id=uuid.uuid4(),
+        entities=(),
     )
     assert rr.rank == 1
 

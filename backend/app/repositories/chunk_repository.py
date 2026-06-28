@@ -29,6 +29,8 @@ class ChunkHit:
     snippet: str
     score: float
     rank: int
+    lineage_id: uuid.UUID
+    entities: list[str]
 
 
 class ChunkRepository:
@@ -52,7 +54,7 @@ class ChunkRepository:
         sql = sql_text(
             """
             SELECT c.id, c.document_id, d.title, c.classification, c.department,
-                   c.effective_date, c.text,
+                   c.effective_date, c.text, c.lineage_id, c.entities,
                    ts_rank(c.text_tsv, plainto_tsquery('english', :q)) AS score
             FROM chunks c
             JOIN documents d ON d.id = c.document_id
@@ -78,7 +80,8 @@ class ChunkRepository:
             ChunkHit(
                 chunk_id=row[0], document_id=row[1], document_title=row[2],
                 classification=row[3], department=row[4], effective_date=row[5],
-                snippet=_snippet(row[6]), score=float(row[7]), rank=i + 1,
+                snippet=_snippet(row[6]), score=float(row[9]), rank=i + 1,
+                lineage_id=row[7], entities=list(row[8] or []),
             )
             for i, row in enumerate(result.fetchall())
         ]
@@ -89,7 +92,7 @@ class ChunkRepository:
         sql = sql_text(
             """
             SELECT c.id, c.document_id, d.title, c.classification, c.department,
-                   c.effective_date, c.text,
+                   c.effective_date, c.text, c.lineage_id, c.entities,
                    (c.embedding <=> CAST(:qv AS vector)) AS distance
             FROM chunks c
             JOIN documents d ON d.id = c.document_id
@@ -116,8 +119,9 @@ class ChunkRepository:
                 chunk_id=row[0], document_id=row[1], document_title=row[2],
                 classification=row[3], department=row[4], effective_date=row[5],
                 snippet=_snippet(row[6]),
-                score=1.0 - float(row[7]),  # cosine similarity
+                score=1.0 - float(row[9]),  # cosine similarity
                 rank=i + 1,
+                lineage_id=row[7], entities=list(row[8] or []),
             )
             for i, row in enumerate(result.fetchall())
         ]

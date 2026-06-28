@@ -16,6 +16,8 @@ class RetrievalResult:
     snippet: str
     score: float
     rank: int
+    lineage_id: uuid.UUID
+    entities: tuple[str, ...]
 
 
 @dataclass(frozen=True)
