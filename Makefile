@@ -1,6 +1,6 @@
 PY := .venv/Scripts/python
 
-.PHONY: help backend-venv backend-install backend-migrate backend-seed seed-corpus backend-test frontend-install dev
+.PHONY: help backend-venv backend-install backend-migrate backend-seed seed-corpus backend-test frontend-install dev eval
 
 help:
 	@echo "Targets:"
@@ -10,6 +10,7 @@ help:
 	@echo "  backend-seed      - seed the Imperial tenant and demo users"
 	@echo "  seed-corpus       - ingest the corpus/ directory into the live DB"
 	@echo "  backend-test      - run pytest"
+	@echo "  eval              - run the Phase D eval harness against a live backend on :8000"
 	@echo "  frontend-install  - install pnpm deps"
 	@echo "  dev               - start backend + frontend (requires postgres+redis up)"
 
@@ -32,6 +33,9 @@ seed-corpus:
 
 backend-test:
 	cd backend && $(PY) -m pytest -v
+
+eval:
+	cd backend && $(PY) -m eval.runner
 
 frontend-install:
 	cd frontend && pnpm install

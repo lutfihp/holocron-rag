@@ -51,6 +51,9 @@ asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "-ra -m 'not slow'"
 markers = ["slow: tests that load real ML models or hit external services"]
+# Phase D: surface `eval/` package alongside `app/` so tests can do
+# `from eval.scorer import ...` and `python -m eval.runner` from backend/ works.
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

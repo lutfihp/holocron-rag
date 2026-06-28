@@ -1,0 +1,278 @@
+# HOLOCRON Phase D eval — 30 questions across 4 categories.
+#
+# Categories: lookup | refusal | conflict | cross_department
+# Expectations are lineage_slug-based (matches corpus frontmatter; stable across
+# seed_corpus.py re-runs). Refusal-category rows skip the retrieval pass.
+#
+# Seeded users (password "imperial-march"):
+#   employee.security     (Employee,  security)
+#   employee.engineering  (Employee,  engineering)
+#   manager.hr            (Manager,   hr)
+#   manager.engineering   (Manager,   engineering)
+#   director.engineering  (Director,  engineering)
+#   director.security     (Director,  security)
+#   executive.fleet       (Executive, fleet_operations + security)  # no HR
+#   executive.procurement (Executive, procurement + hr)             # no IT
+
+# ==== 12 lookup ====
+
+- id: lookup-compensation-mgr-hr
+  category: lookup
+  as_user: manager.hr
+  question: "How is salary banding structured under the compensation handbook?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [compensation-benefits]
+
+- id: lookup-compensation-employee-security
+  category: lookup
+  as_user: employee.security
+  question: "What does the compensation handbook say about benefits eligibility?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [compensation-benefits]
+
+- id: lookup-acceptable-use-employee-eng
+  category: lookup
+  as_user: employee.engineering
+  question: "Am I allowed to install personal software on my workstation per the acceptable use policy?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [it-acceptable-use]
+
+- id: lookup-acceptable-use-manager-eng
+  category: lookup
+  as_user: manager.engineering
+  question: "What does the IT acceptable use policy say about personal devices?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [it-acceptable-use]
+
+- id: lookup-remote-work-employee-security
+  category: lookup
+  as_user: employee.security
+  question: "What are the remote duty assignment guidelines?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [remote-work]
+
+- id: lookup-recruitment-public-employee-eng
+  category: lookup
+  as_user: employee.engineering
+  question: "What is the imperial recruitment policy for new hires?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [recruitment-policy]
+
+- id: lookup-onboarding-audit-mgr-hr
+  category: lookup
+  as_user: manager.hr
+  question: "How is the new-hire onboarding audit process structured?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [onboarding-audit]
+
+- id: lookup-handbook-mgr-hr
+  category: lookup
+  as_user: manager.hr
+  question: "What does the imperial employee handbook say about uniform standards?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [employee-handbook]
+
+- id: lookup-access-audit-director-sec
+  category: lookup
+  as_user: director.security
+  question: "How are high-clearance access audits performed in the security department?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [security-access-audit]
+
+- id: lookup-acceptable-use-mgr-eng
+  category: lookup
+  as_user: manager.engineering
+  question: "What is the imperial information systems acceptable use policy?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [it-acceptable-use]
+
+- id: lookup-recruitment-mgr-hr
+  category: lookup
+  as_user: manager.hr
+  question: "What manager-tier hiring guidelines apply to interviews?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [recruitment-policy]
+
+- id: lookup-remote-work-mgr-hr
+  category: lookup
+  as_user: manager.hr
+  question: "What does the remote duty assignment policy say about reporting cadence?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [remote-work]
+
+
+# ==== 8 refusal ====
+
+- id: refusal-incident-response-employee-eng
+  category: refusal
+  as_user: employee.engineering
+  question: "What is the cyber incident response procedure for IT outages?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-insider-threat-employee-eng
+  category: refusal
+  as_user: employee.engineering
+  question: "What insider threat indicators should I watch for under the assessment standard?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-exec-search-mgr-hr
+  category: refusal
+  as_user: manager.hr
+  question: "What is the executive tier final selection protocol?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-reactor-employee-security
+  category: refusal
+  as_user: employee.security
+  question: "What is the reactor coolant shutdown sequence?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-management-supplement-fleet-exec
+  category: refusal
+  as_user: executive.fleet
+  question: "What additional conduct standards apply to managers under the restricted supplement?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-procurement-employee-eng
+  category: refusal
+  as_user: employee.engineering
+  question: "What's the credit threshold for vendor procurement under the imperial procurement policy?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-insider-threat-director-eng
+  category: refusal
+  as_user: director.engineering
+  question: "What is the insider threat assessment procedure for high-clearance personnel?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+- id: refusal-access-audit-employee-eng
+  category: refusal
+  as_user: employee.engineering
+  question: "How are high-clearance access audits performed in security?"
+  expected:
+    must_refuse: true
+    refusal_min_withheld: 1
+
+
+# ==== 6 conflict ====
+
+- id: conflict-handbook-supplement-exec-proc
+  category: conflict
+  as_user: executive.procurement
+  question: "What's the dress-code policy for off-base events?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [employee-handbook]
+    must_flag_conflict: true
+    conflict_subject_keywords: [dress, insignia, off-duty, conduct, uniform]
+
+- id: conflict-reactor-shutdown-director-eng
+  category: conflict
+  as_user: director.engineering
+  question: "What is the correct coolant shutdown sequence for the reactor?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [reactor-manual]
+    must_flag_conflict: true
+    conflict_subject_keywords: [shutdown, sequence, coolant]
+
+- id: conflict-reactor-mgr-eng
+  category: conflict
+  as_user: manager.engineering
+  question: "What are the reactor coolant shutdown procedures across the 2019 and 2023 manuals?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [reactor-manual]
+    must_flag_conflict: true
+    conflict_subject_keywords: [shutdown, sequence, coolant]
+
+- id: conflict-procurement-credit-threshold
+  category: conflict
+  as_user: executive.procurement
+  question: "What is the vendor credit threshold requiring executive sign-off in the procurement policy?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [procurement-policy]
+    must_flag_conflict: true
+    conflict_subject_keywords: [credit, threshold, approval, sign-off]
+
+- id: conflict-handbook-supplement-mgr-hr
+  category: conflict
+  as_user: manager.hr
+  question: "What conduct standards apply to managers under the imperial employee handbook and supplement?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [employee-handbook]
+    must_flag_conflict: true
+    conflict_subject_keywords: [conduct, off-duty, insignia, dress]
+
+- id: conflict-reactor-compare-versions
+  category: conflict
+  as_user: director.engineering
+  question: "Compare the 2019 and 2023 reactor operations manuals on shutdown safety procedures."
+  expected:
+    must_refuse: false
+    must_cite_lineages: [reactor-manual]
+    must_flag_conflict: true
+    conflict_subject_keywords: [shutdown, sequence, safety]
+
+
+# ==== 4 cross_department ====
+
+- id: xdept-access-audit-onboarding-exec-proc
+  category: cross_department
+  as_user: executive.procurement
+  question: "How do HR onboarding audits and security access audits align?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [onboarding-audit]
+
+- id: xdept-executive-search-fleet
+  category: cross_department
+  as_user: executive.fleet
+  question: "What is the executive tier final selection protocol used by fleet operations?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [executive-search]
+
+- id: xdept-incident-vs-insider-threat-director-sec
+  category: cross_department
+  as_user: director.security
+  question: "How does the insider threat assessment standard intersect with incident response?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [security-insider-threat]
+
+- id: xdept-recruitment-vs-onboarding-mgr-hr
+  category: cross_department
+  as_user: manager.hr
+  question: "How does the recruitment policy intersect with the new-hire onboarding audit?"
+  expected:
+    must_refuse: false
+    must_cite_lineages: [recruitment-policy, onboarding-audit]

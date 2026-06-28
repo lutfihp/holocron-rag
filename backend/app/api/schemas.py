@@ -42,6 +42,7 @@ class SearchResultItem(BaseModel):
     snippet: str
     score: float
     rank: int
+    lineage_id: uuid.UUID
 
 
 class RefusalSummary(BaseModel):
@@ -73,6 +74,7 @@ class CitationOut(BaseModel):
     department: str
     effective_date: dt.date
     snippet: str
+    lineage_id: uuid.UUID
 
 
 class PositionOut(BaseModel):

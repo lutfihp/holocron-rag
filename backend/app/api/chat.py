@@ -95,6 +95,7 @@ async def post_ask(
                 department=r.department,
                 effective_date=r.effective_date,
                 snippet=r.snippet,
+                lineage_id=r.lineage_id,
             )
         )
 

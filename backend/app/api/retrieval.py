@@ -42,6 +42,7 @@ async def post_search(
                 document_title=r.document_title, classification=r.classification,
                 department=r.department, effective_date=r.effective_date,
                 snippet=r.snippet, score=r.score, rank=r.rank,
+                lineage_id=r.lineage_id,
             )
             for r in response.results
         ],
