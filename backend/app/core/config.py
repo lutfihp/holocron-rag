@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     cookie_name: str = "holocron_session"
     cookie_secure: bool = False
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+    groq_api_key: str = ""
+    llm_primary_model: str = "llama-3.3-70b-versatile"
+    llm_fallback_model: str = "llama-3.1-8b-instant"
 
     @field_validator("cors_origins", mode="before")
     @classmethod
