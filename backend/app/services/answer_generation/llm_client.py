@@ -86,14 +86,18 @@ class GroqLLMClient:
         return await self._run_with_ladder(prompt, json_mode=False)
 
     async def _run_with_ladder(self, prompt: str, *, json_mode: bool) -> str:
-        for model in (self.primary, self.fallback):
-            for backoff in _BACKOFFS:
+        models = (self.primary, self.fallback)
+        for m_idx, model in enumerate(models):
+            for b_idx, backoff in enumerate(_BACKOFFS):
                 try:
                     return await self._raw_call(model=model, prompt=prompt, json_mode=json_mode)
                 except Exception as e:  # noqa: BLE001
                     if not self._is_rate_limit(e):
                         # Non-rate-limit: fail fast, do not try fallback model
                         raise LLMUnavailable(f"LLM call failed (non-429): {e}") from e
+                    is_last = (m_idx == len(models) - 1) and (b_idx == len(_BACKOFFS) - 1)
+                    if is_last:
+                        continue
                     result = self._sleep(backoff)
                     if inspect.isawaitable(result):
                         await result
