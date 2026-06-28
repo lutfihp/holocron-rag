@@ -13,7 +13,6 @@ from app.domain.enums import ClearanceLevel, Role
 from app.domain.models import Chunk, Document, Tenant, User
 from app.main import app
 from app.services.answer_generation.llm_client import FakeLLMClient, get_default_llm
-from app.services.conflict_detection.judge import _judge_cache_clear
 from app.services.ingestion.embedding import FakeEmbeddingProvider
 from app.services.ingestion.embedding_factory import get_default_embedder
 
@@ -100,7 +99,6 @@ async def _login(client: AsyncClient, tenant_id, username, password) -> None:
 async def test_chat_ask_returns_full_payload(
     client, empire_tenant, seeded_executive, seeded_chunk
 ):
-    _judge_cache_clear()
     await _login(client, empire_tenant.id, "ex-proc", "imperial-march")
 
     resp = await client.post("/chat/ask", json={"query": "anything", "top_k": 6})
@@ -121,7 +119,6 @@ async def test_chat_ask_unauthenticated_is_401(client):
 
 @pytest.mark.asyncio
 async def test_chat_ask_rejects_empty_query(client, empire_tenant, seeded_executive):
-    _judge_cache_clear()
     await _login(client, empire_tenant.id, "ex-proc", "imperial-march")
     resp = await client.post("/chat/ask", json={"query": "   "})
     # Either pydantic min_length=1 (422) or explicit 400 from the router check

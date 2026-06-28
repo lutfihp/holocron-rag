@@ -8,7 +8,6 @@ import pytest
 from app.domain.chunk import RetrievalResult
 from app.services.answer_generation.llm_client import FakeLLMClient
 from app.services.conflict_detection import detect_conflicts
-from app.services.conflict_detection.judge import _judge_cache_clear
 
 
 def _r(*, dept: str, lineage: uuid.UUID, rank: int, title: str = "t") -> RetrievalResult:
@@ -29,7 +28,6 @@ def _r(*, dept: str, lineage: uuid.UUID, rank: int, title: str = "t") -> Retriev
 
 @pytest.mark.asyncio
 async def test_returns_empty_when_no_pairs():
-    _judge_cache_clear()
     a = _r(dept="hr", lineage=uuid.uuid4(), rank=1)
     b = _r(dept="security", lineage=uuid.uuid4(), rank=2)
     conflicts = await detect_conflicts(results=[a, b], llm=FakeLLMClient())
@@ -38,7 +36,6 @@ async def test_returns_empty_when_no_pairs():
 
 @pytest.mark.asyncio
 async def test_detects_lineage_pair():
-    _judge_cache_clear()
     L = uuid.uuid4()
     a = _r(dept="hr", lineage=L, rank=1, title="Handbook 2019")
     b = _r(dept="hr", lineage=L, rank=2, title="Supplement 2023")
@@ -54,7 +51,6 @@ async def test_detects_lineage_pair():
 
 @pytest.mark.asyncio
 async def test_filters_out_no_conflict_judgments():
-    _judge_cache_clear()
     L = uuid.uuid4()
     a = _r(dept="hr", lineage=L, rank=1)
     b = _r(dept="hr", lineage=L, rank=2)

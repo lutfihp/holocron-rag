@@ -8,7 +8,7 @@ import pytest
 from app.domain.chunk import RetrievalResult
 from app.domain.conflict import ConflictPair
 from app.services.answer_generation.llm_client import FakeLLMClient
-from app.services.conflict_detection.judge import judge_pair, _judge_cache_clear
+from app.services.conflict_detection.judge import judge_pair
 
 
 def _r(rank: int) -> RetrievalResult:
@@ -29,7 +29,6 @@ def _r(rank: int) -> RetrievalResult:
 
 @pytest.mark.asyncio
 async def test_returns_conflict_when_llm_says_so():
-    _judge_cache_clear()
     a, b = _r(1), _r(2)
     pair = ConflictPair(a.chunk_id, b.chunk_id, a.rank, b.rank)
     fake = FakeLLMClient(json_responses=[{
@@ -47,7 +46,6 @@ async def test_returns_conflict_when_llm_says_so():
 
 @pytest.mark.asyncio
 async def test_returns_none_when_llm_says_no_conflict():
-    _judge_cache_clear()
     a, b = _r(1), _r(2)
     pair = ConflictPair(a.chunk_id, b.chunk_id, a.rank, b.rank)
     fake = FakeLLMClient(json_responses=[{
@@ -59,7 +57,6 @@ async def test_returns_none_when_llm_says_no_conflict():
 
 @pytest.mark.asyncio
 async def test_cache_hit_skips_llm_for_same_pair():
-    _judge_cache_clear()
     a, b = _r(1), _r(2)
     pair = ConflictPair(a.chunk_id, b.chunk_id, a.rank, b.rank)
     fake = FakeLLMClient(json_responses=[{
@@ -73,7 +70,6 @@ async def test_cache_hit_skips_llm_for_same_pair():
 
 @pytest.mark.asyncio
 async def test_cache_key_is_orderless():
-    _judge_cache_clear()
     a, b = _r(1), _r(2)
     pair_ab = ConflictPair(a.chunk_id, b.chunk_id, 1, 2)
     pair_ba = ConflictPair(b.chunk_id, a.chunk_id, 2, 1)
@@ -89,7 +85,6 @@ async def test_cache_key_is_orderless():
 async def test_returns_none_on_llm_unavailable():
     from app.services.answer_generation.llm_client import LLMUnavailable
 
-    _judge_cache_clear()
     a, b = _r(1), _r(2)
     pair = ConflictPair(a.chunk_id, b.chunk_id, 1, 2)
 

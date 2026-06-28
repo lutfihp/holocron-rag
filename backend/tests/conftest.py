@@ -3,12 +3,26 @@ from __future__ import annotations
 import uuid
 from collections.abc import AsyncIterator
 
+import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
 from app.domain.models import Base, Tenant
+
+
+@pytest.fixture(autouse=True)
+def _clear_judge_cache():
+    """Phase D: module-global conflict-judge cache must not leak across tests.
+
+    Without this autouse, tests that exercise judge.py reuse cache entries
+    seeded by earlier tests, producing flake on test re-ordering. Cheap and
+    idempotent — safe to run before every test.
+    """
+    from app.services.conflict_detection.judge import _judge_cache_clear
+    _judge_cache_clear()
+    yield
 
 
 @pytest_asyncio.fixture
