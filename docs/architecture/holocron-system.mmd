@@ -1,0 +1,42 @@
+graph LR
+    subgraph Frontend["Next.js 15 + React 19"]
+        Login["/login"]
+        Chat["/chat"]
+        Audit["/admin/audit"]
+    end
+
+    subgraph Backend["FastAPI · Python 3.11"]
+        Auth["auth router"]
+        Mw["correlation_id<br/>middleware"]
+        Ret["retrieval service<br/>BM25+vector+RRF<br/>RBAC filter"]
+        Conf["conflict_detection<br/>prefilter + LLM judge"]
+        Gen["answer_generation<br/>CompactAndRefine"]
+        AuditR["AuditRepository<br/>(grouped by cid)"]
+        Warm["lifespan: warm<br/>BGE + spaCy"]
+        Health["/healthz/ready"]
+    end
+
+    subgraph Data["pgvector PG16"]
+        Chunks[("chunks<br/>tsvector + HNSW")]
+        Docs[("documents")]
+        Users[("users + tenants")]
+        Events[("audit_events<br/>+ correlation_id")]
+    end
+
+    subgraph External["External"]
+        BGE["BGE-base-en-v1.5<br/>local embeddings"]
+        Groq["Groq llama-3.3-70b<br/>+ llama-3.1-8b fallback"]
+        Spacy["spaCy en_core_web_sm"]
+    end
+
+    Login --> Auth --> Users
+    Chat --> Mw
+    Audit --> Mw
+    Mw --> Ret --> Chunks
+    Mw --> Conf --> Groq
+    Mw --> Gen --> Groq
+    Mw --> AuditR --> Events
+    Ret -.-> BGE
+    Conf -.-> Spacy
+    Backend --> Warm
+    Backend --> Health
