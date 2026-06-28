@@ -141,13 +141,18 @@
 
     --sidebar-ring: oklch(0.556 0 0)
   }
+  /* Direct CSS instead of @apply: v3's opacity-modulation can't resolve
+     `outline-ring/50` when the color is a plain `var(--ring)` token.
+     CSS variables defined above remain reachable everywhere. */
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-sans);
   }
 }
