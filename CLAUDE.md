@@ -11,17 +11,15 @@
 1. **Design spec:** [docs/superpowers/specs/2026-06-27-holocron-design.md](docs/superpowers/specs/2026-06-27-holocron-design.md) — full product, architecture, data model, MVP phasing
 2. **Phase A plan + completion:** [plan](docs/superpowers/plans/2026-06-27-phase-a-foundation.md) · [completion](docs/superpowers/plans/2026-06-27-phase-a-foundation-completion.md)
 3. **Phase B spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-27-phase-b-ingestion-retrieval.md) · [plan](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval.md) · [completion](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval-completion.md)
-4. **Phase C spec + plan:** [spec](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md) · [plan](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) — **plan is ready to execute; brainstorming is done**
+4. **Phase C spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md) · [plan](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) · [completion](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md)
 5. **Original brief:** [initial_idea.txt](initial_idea.txt) — untracked; the user's starting prompt
 
 ## Phase status
 
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
-- **Phase C — Conflict Detection + Frontend:** ✅ done (entity extraction, conflict detection, answer generation, /chat frontend)
-- **Phase D — Eval + Audit + Polish:** ⏭ next
-
-Phase C resume guide is no longer needed; see the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md) for state, deviations, and Phase D follow-ups.
+- **Phase C — Conflict Detection + Frontend:** ✅ done — code complete, 131 tests passing (~30s). **Manual browser walkthrough of spec §7.1 is intentionally deferred** by the user until after Phase D; the two demos will be verified together at the end. See the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md) for state, deviations, and Phase D follow-ups.
+- **Phase D — Eval + Audit + Polish:** ⏭ next. No spec or plan yet — start with `superpowers:brainstorming` against design spec §10.4 + the Phase C completion record's Phase D follow-up list.
 
 ## Tech stack as actually built (not what the spec listed)
 
@@ -144,25 +142,52 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 > **Demo A path:** use `executive.procurement` (has hr) vs `employee.security` for the contrast. `executive.fleet` doesn't see the HR supplement because clearance + department both gate access.
 
-## What's needed before Phase C starts
+## Resuming next session — Phase D entry point
 
-1. **Groq API key.** ✅ Already added to `backend/.env` by the user. The plan's Task 0 adds `Settings.groq_api_key`, `llm_primary_model`, `llm_fallback_model` to [config.py](backend/app/core/config.py) — env names: `GROQ_API_KEY`, `LLM_PRIMARY_MODEL`, `LLM_FALLBACK_MODEL` (the latter two default to `llama-3.3-70b-versatile` and `llama-3.1-8b-instant`, so only `GROQ_API_KEY` is strictly required to be set).
+**No code starts until Phase D has a spec + plan.** Recommended sequence:
 
-2. **spaCy model download.** Phase C Task 0 includes `python -m spacy download en_core_web_sm` as a one-time step (~50 MB). This runs as part of the plan; user does not need to do it ahead of time.
+1. **`superpowers:brainstorming`** against design spec §10.4 (which sketches Phase D scope) plus the prioritized Phase D backlog below. Surface decisions: scope cuts, eval-harness shape, audit-viewer UX, observability format, whether to ship streaming.
+2. **`superpowers:writing-plans`** to turn the brainstormed decisions into a TDD task list at `docs/superpowers/plans/<date>-phase-d-<topic>.md`.
+3. **`superpowers:subagent-driven-development`** or `superpowers:executing-plans` against that plan.
+4. **End-of-Phase-D demo** walks BOTH the Phase C §7.1 checklist AND any Phase D demo paths in one browser session.
 
-3. **Frontend Docker build retry.** Still failing on Docker Desktop networking quirk. Phase A and B both work fine with `pnpm dev`. Retry `docker compose build frontend` when the network is healthy. Not blocking for Phase C.
+### Phase D backlog (prioritized; from Phase C completion record + final review)
 
-## Known follow-ups carried into Phase D
+**Tier 1 — do before broad eval**
+- **Warm BGE + spaCy + Groq at startup.** The 60s first-`/chat/ask` stall is a demo-killer for anyone except the author. Cheap fix; do first.
+- **Drop `llama-index-llms-groq` dep OR actually use it.** Currently dead weight — spec decision #5 (`CompactAndRefine` *synthesizer*) drifted to "pattern only". Either revert to a real LlamaIndex synthesizer or remove the dep + update the spec.
+- **Add a `correlation_id`** linking the three audit row writes (`query`, `response`, optional `refusal`) per `/chat/ask`. Required before any audit-viewer work is coherent. Cheaper to add at write time than backfill.
 
-- **structlog → JSON stdout.** Spec §2 puts this in Phase D.
-- **arq + Redis re-embed worker.** Deferred — not in MVP.
-- **`chunk_size=512` may be too large** for our ~600–1500 word docs (39 chunks across 18 docs). Phase D eval will tell us if we want finer granularity.
-- **Backend without `--reload` doesn't auto-reload code changes.** A stale uvicorn caught me during Phase B smoke. Document in dev docs if it bites others.
-- **`llama-index-llms-groq` version range deviated from spec** (`>=0.2,<0.3` → `>=0.3,<0.4`) because 0.2.x requires `llama-index-core<0.12` which conflicts with Phase B's locked core. Plan/spec should be updated to reflect actual constraint.
-- **The `_sleep` seam in `GroqLLMClient`** uses an `inspect.isawaitable` shim to allow sync test monkeypatches AND awaitable production behavior. Worth simplifying in Phase D — either standardize on `async lambda` in tests or switch to dependency-injection of a sleep function.
-- **`ChunkRepository` SELECT row-index reads are now positional** (`row[7]` for lineage_id, `row[9]` for score, etc.). Adding more columns would silently shift indices. Phase D should migrate to `.mappings()` for named column access before the next schema addition.
+**Tier 2 — quality + correctness**
+- **Filter conflicts whose chunks aren't in the final list.** Defensive guard against silent `marker=0` if dataflow ever drifts.
+- **Make `_judge_cache_clear` an autouse pytest fixture.** Currently called manually in every judge-touching test — easy to forget; module-global cache will silently leak across cases.
+- **Convert bounded cache from FIFO to true LRU** (touch-on-hit) — to actually match spec #3.
+- **`AuditRepository` is intentionally minimal.** Full `services/audit/` with event taxonomy + viewer (`/admin/audit`) is Phase D.
+- **structlog → JSON stdout.** Design spec §2.
+
+**Tier 3 — eval & polish**
+- **Evaluation harness** + `golden_set.yaml` + `make eval`. Drives all "is this actually better" decisions.
+- **`chunk_size=512` may be too large** for our ~600–1500 word docs (39 chunks across 18 docs). Eval will tell.
+- **Disk cache for Groq responses** — only if eval shows repeated same-prompt calls. Eval-gated, not unconditional.
+- **`/admin/documents` upload + list page.**
+- **Streaming responses** for `/chat/ask`.
+- **Replace `SentenceSplitter` with `SemanticSplitter`** if eval signals demand it.
+
+**Tier 4 — tech debt cleanup (5–15 min each)**
+- **Migrate `ChunkRepository` SELECT row reads to `.mappings()`.** Positional `row[7]`/`row[9]` reads will silently break on next schema column add.
+- **Simplify `GroqLLMClient._sleep` shim** — drop `inspect.isawaitable`, either standardize on `async lambda` in tests or DI the sleep function.
+- **Fix pre-existing `frontend/app/layout.tsx` Geist font import error** — Phase A scaffold imports `Geist`/`Geist_Mono` from `next/font/google`, which the installed `next` version doesn't expose. Either upgrade `next` or swap to `Inter`. Doesn't block dev server but pollutes `tsc --noEmit`.
+- **Update `pyproject.toml` deps + spec/plan docs** to reflect actual constraint: `llama-index-llms-groq>=0.3,<0.4` (0.2.x conflicts with Phase B's locked `llama-index-core`).
+- **Add a real-Groq slow test** (`@pytest.mark.slow`) for `/chat/ask` end-to-end. Phase C only has real-spaCy + real-BGE slow tests.
+- **Harden `tests/test_security.py::test_tampered_token_rejected`** — Phase A JWT-fuzz test with non-zero false-pass probability.
+- **arq + Redis re-embed worker.** Deferred from MVP; revisit if eval workload demands batching.
+- **Backend without `--reload` doesn't auto-reload code changes.** Document if it bites others.
+
+### Non-functional notes that bit during Phase C
+
+- **`llama-index-llms-groq` version range deviated from spec** (`>=0.2,<0.3` → `>=0.3,<0.4`) because 0.2.x requires `llama-index-core<0.12` which conflicts with Phase B's locked core.
 - **Phase A's `ClearanceBadge` component had prop `level: ClearanceLevel`**; renamed to `classification: Clearance` to match Phase C's chat type. The Phase A consumer at `frontend/app/me/page.tsx` was updated in the same Task 15 commit (one-line rename).
-- **Pre-existing tsc error in `frontend/app/layout.tsx`** (Phase A scaffold imports `Geist`/`Geist_Mono` which the installed `next/font` version does not expose). Phase D should either upgrade `next` or swap the layout to use `Inter`. Does not block dev server.
+- **Frontend Docker build still fails on Docker Desktop networking quirk.** Phase A/B/C all work fine with `pnpm dev`. Retry `docker compose build frontend` when the network is healthy. Not blocking.
 
 ## How to collaborate with this user
 
