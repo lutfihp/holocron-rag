@@ -10,6 +10,7 @@ from app.domain.models import Chunk, Document
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.document_repository import DocumentRepository
 from app.services.ingestion.embedding import EmbeddingProvider
+from app.services.ingestion.entity_extractor import extract_entities
 from app.services.ingestion.loader import LoadedDocument, load_corpus_dir
 from app.services.ingestion.splitter import split_text
 
@@ -96,6 +97,7 @@ def _build_doc_and_chunks(
             department=fm.department,
             effective_date=fm.effective_date,
             lineage_id=lineage,
+            entities=list(extract_entities(text)),
         )
         for i, (text, vec) in enumerate(zip(chunk_texts, vectors))
     ]
