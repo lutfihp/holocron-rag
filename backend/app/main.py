@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.admin import router as admin_router
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
 from app.api.healthz import router as healthz_router
@@ -88,3 +89,4 @@ app.include_router(auth_router)
 app.include_router(retrieval_router)
 app.include_router(chat_router)
 app.include_router(healthz_router)
+app.include_router(admin_router)
