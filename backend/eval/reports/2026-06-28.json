@@ -1,0 +1,351 @@
+{
+  "date": "2026-06-28",
+  "questions": [
+    {
+      "id": "lookup-compensation-mgr-hr",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-compensation-employee-security",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-acceptable-use-employee-eng",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-acceptable-use-manager-eng",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-remote-work-employee-security",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-recruitment-public-employee-eng",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-onboarding-audit-mgr-hr",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-handbook-mgr-hr",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-access-audit-director-sec",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-acceptable-use-mgr-eng",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-recruitment-mgr-hr",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "lookup-remote-work-mgr-hr",
+      "category": "lookup",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-incident-response-employee-eng",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-insider-threat-employee-eng",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-exec-search-mgr-hr",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-reactor-employee-security",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-management-supplement-fleet-exec",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-procurement-employee-eng",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-insider-threat-director-eng",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "refusal-access-audit-employee-eng",
+      "category": "refusal",
+      "scores": {
+        "refusal": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "conflict-handbook-supplement-exec-proc",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 1.0
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "conflict-reactor-shutdown-director-eng",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 0.5
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "conflict-reactor-mgr-eng",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 1.0
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "conflict-procurement-credit-threshold",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 0.5
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "conflict-handbook-supplement-mgr-hr",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 0.5
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "conflict-reactor-compare-versions",
+      "category": "conflict",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 0.0,
+        "citation": 1.0
+      },
+      "passed": false,
+      "notes": ""
+    },
+    {
+      "id": "xdept-access-audit-onboarding-exec-proc",
+      "category": "cross_department",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "xdept-executive-search-fleet",
+      "category": "cross_department",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "xdept-incident-vs-insider-threat-director-sec",
+      "category": "cross_department",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 1.0,
+        "citation": 1.0
+      },
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "xdept-recruitment-vs-onboarding-mgr-hr",
+      "category": "cross_department",
+      "scores": {
+        "retrieval": 1.0,
+        "refusal": 1.0,
+        "conflict": 1.0,
+        "citation": 0.5
+      },
+      "passed": true,
+      "notes": ""
+    }
+  ],
+  "aggregate": {
+    "total": 30,
+    "passed": 24,
+    "categories": {
+      "lookup": {
+        "n": 12,
+        "passed": 12
+      },
+      "refusal": {
+        "n": 8,
+        "passed": 8
+      },
+      "conflict": {
+        "n": 6,
+        "passed": 0
+      },
+      "cross_department": {
+        "n": 4,
+        "passed": 4
+      }
+    }
+  }
+}
