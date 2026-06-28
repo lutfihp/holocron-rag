@@ -51,3 +51,23 @@ class AuditRepository:
                 withheld_ids=list(withheld_ids),
             )
         )
+
+    async def insert_response(
+        self,
+        *,
+        tenant_id: uuid.UUID,
+        user_id: uuid.UUID,
+        response_text: str,
+        conflicts_found: dict | None,
+        latency_ms: int,
+    ) -> None:
+        self._session.add(
+            AuditEvent(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                event_type="response",
+                response_text=response_text,
+                conflicts_found=conflicts_found,
+                latency_ms=latency_ms,
+            )
+        )
