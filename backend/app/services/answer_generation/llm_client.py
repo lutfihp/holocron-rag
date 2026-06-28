@@ -107,6 +107,10 @@ class GroqLLMClient:
 @lru_cache
 def get_default_llm() -> LLMClient:
     settings = get_settings()
+    if not settings.groq_api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Add it to backend/.env to enable /chat/ask."
+        )
     return GroqLLMClient(
         api_key=settings.groq_api_key,
         primary=settings.llm_primary_model,
