@@ -39,7 +39,7 @@ export default function MePage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
             <span className="text-sm text-slate-500">Max clearance:</span>
-            <ClearanceBadge level={user.max_clearance} />
+            <ClearanceBadge classification={user.max_clearance} />
           </div>
           <div>
             <p className="text-sm text-slate-500">Departments</p>
