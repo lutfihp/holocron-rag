@@ -52,3 +52,48 @@ class RefusalSummary(BaseModel):
 class SearchResponseBody(BaseModel):
     results: list[SearchResultItem]
     refusal: RefusalSummary | None = None
+
+
+class ChatRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=2000)
+    top_k: int = Field(default=6, ge=1, le=10)
+
+
+class AnswerOut(BaseModel):
+    text: str
+    cited_chunk_ids: list[uuid.UUID]
+
+
+class CitationOut(BaseModel):
+    marker: int
+    chunk_id: uuid.UUID
+    document_id: uuid.UUID
+    document_title: str
+    classification: str
+    department: str
+    effective_date: dt.date
+    snippet: str
+
+
+class PositionOut(BaseModel):
+    marker: int
+    text: str
+
+
+class ConflictOut(BaseModel):
+    subject: str
+    position_a: PositionOut
+    position_b: PositionOut
+
+
+class RefusalOut(BaseModel):
+    reference_id: str
+    withheld_count: int
+
+
+class ChatResponse(BaseModel):
+    query: str
+    answer: AnswerOut
+    citations: list[CitationOut]
+    conflicts: list[ConflictOut]
+    refusal: RefusalOut | None = None
