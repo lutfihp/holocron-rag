@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     llm_primary_model: str = "llama-3.3-70b-versatile"
     llm_fallback_model: str = "llama-3.1-8b-instant"
+    # Phase D: when truthy, FastAPI lifespan skips BGE + spaCy warming. Convenient
+    # for uvicorn --reload dev loops and the pytest suite (tests use FakeEmbedding
+    # and never need the real BGE model warmed).
+    skip_warmup: bool = False
 
     @field_validator("cors_origins", mode="before")
     @classmethod

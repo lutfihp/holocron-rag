@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+import os
+
+# Phase D: skip BGE + spaCy warming during the test suite. Tests use the
+# fake embedder + scripted LLM and never need the real models warmed.
+# Must be set BEFORE any import that reads Settings.
+os.environ.setdefault("HOLOCRON_SKIP_WARMUP", "1")
+
 import uuid
 from collections.abc import AsyncIterator
 
