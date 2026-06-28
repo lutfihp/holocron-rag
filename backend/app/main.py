@@ -4,6 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.auth import router as auth_router
+from app.api.chat import router as chat_router
 from app.api.retrieval import router as retrieval_router
 from app.core.config import get_settings
 from app.core.database import get_session
@@ -29,3 +30,4 @@ async def health(session: AsyncSession = Depends(get_session)) -> dict[str, str]
 
 app.include_router(auth_router)
 app.include_router(retrieval_router)
+app.include_router(chat_router)
