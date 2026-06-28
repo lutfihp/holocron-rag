@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from time import perf_counter
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
@@ -36,6 +36,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 @router.post("/ask", response_model=ChatResponse)
 async def post_ask(
     body: ChatRequest,
+    request: Request,
     session: AsyncSession = Depends(get_session),
     tenant_ctx=Depends(get_tenant_context),
     embedder: EmbeddingProvider = Depends(get_default_embedder),
@@ -44,7 +45,9 @@ async def post_ask(
     if not body.query.strip():
         raise HTTPException(status_code=400, detail="query must be non-empty")
 
-    correlation_id = uuid.uuid4()
+    # Middleware bound this on request.state; falls back to a fresh UUID if the
+    # router is called outside the normal middleware stack (rare; defensive).
+    correlation_id = getattr(request.state, "correlation_id", None) or uuid.uuid4()
 
     ctx = ClearanceContext(
         tenant_id=tenant_ctx.tenant_id,

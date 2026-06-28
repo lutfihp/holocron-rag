@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-import logging
 import uuid
 from typing import Any
+
+import structlog
 
 from app.domain.chunk import RetrievalResult
 from app.domain.conflict import Conflict, ConflictPair, Position
 from app.services.answer_generation.llm_client import LLMClient, LLMUnavailable
 from app.services.conflict_detection.prompts import render_judge_prompt
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 # Module-global cache: canonical pair key -> Conflict | None.
 # functools.lru_cache doesn't fit async; we hand-roll a simple bounded dict.
@@ -70,7 +71,7 @@ async def judge_pair(
     try:
         payload = await llm.complete_json(prompt)
     except LLMUnavailable as e:
-        log.warning("judge LLM unavailable for pair=%s err=%s", key, e)
+        log.warning("judge LLM unavailable", pair=str(key), error=str(e))
         # Do not cache transient failures
         return None
 

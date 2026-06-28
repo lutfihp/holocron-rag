@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+import structlog
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,9 +16,11 @@ from app.api.healthz import router as healthz_router
 from app.api.retrieval import router as retrieval_router
 from app.core.config import get_settings
 from app.core.database import get_session
+from app.core.logging import configure_logging
 from app.core.warmup import WarmState, warm_groq_async, warm_sync
 
 settings = get_settings()
+configure_logging(pretty=settings.log_pretty)
 
 
 @asynccontextmanager
@@ -44,6 +48,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def correlation_id_middleware(request: Request, call_next):
+    """Bind one correlation_id for the request lifetime.
+
+    Reads `x-correlation-id` from the inbound headers if present; otherwise
+    generates a new UUID4. The same id is:
+      - bound to structlog.contextvars (every log line gets it automatically)
+      - written back as a response header (client / proxy can chain)
+      - read by /chat/ask and used as audit_events.correlation_id
+    """
+    raw = request.headers.get("x-correlation-id")
+    try:
+        cid_uuid = uuid.UUID(raw) if raw else uuid.uuid4()
+    except ValueError:
+        # Inbound header isn't a UUID — generate fresh rather than persist a
+        # client-supplied free-form string into audit_events.correlation_id.
+        cid_uuid = uuid.uuid4()
+    cid_str = str(cid_uuid)
+    request.state.correlation_id = cid_uuid
+    structlog.contextvars.bind_contextvars(correlation_id=cid_str)
+    try:
+        response = await call_next(request)
+        response.headers["x-correlation-id"] = cid_str
+        return response
+    finally:
+        structlog.contextvars.clear_contextvars()
 
 
 @app.get("/health")

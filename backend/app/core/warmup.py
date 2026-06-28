@@ -13,11 +13,12 @@ the flags via app.state.warm.
 from __future__ import annotations
 
 import asyncio
-import logging
 from dataclasses import dataclass
 
+import structlog
 
-logger = logging.getLogger(__name__)
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -52,7 +53,7 @@ async def _probe_groq() -> None:
         llm = get_default_llm()
         await llm.complete_text("ping")
     except Exception as e:  # noqa: BLE001
-        logger.warning("groq warmup probe failed: %s", e)
+        logger.warning("groq warmup probe failed", error=str(e))
 
 
 async def warm_sync(state: WarmState) -> None:

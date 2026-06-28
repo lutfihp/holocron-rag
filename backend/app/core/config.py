@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     # for uvicorn --reload dev loops and the pytest suite (tests use FakeEmbedding
     # and never need the real BGE model warmed).
     skip_warmup: bool = False
+    # Phase D: when truthy, structlog uses ConsoleRenderer (human-readable, dev);
+    # otherwise JSONRenderer (prod, eval, demo recording).
+    log_pretty: bool = False
 
     @field_validator("cors_origins", mode="before")
     @classmethod

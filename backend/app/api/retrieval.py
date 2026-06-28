@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import RefusalSummary, SearchRequest, SearchResponseBody, SearchResultItem
@@ -19,6 +19,7 @@ router = APIRouter(prefix="/retrieval", tags=["retrieval"])
 @router.post("/search", response_model=SearchResponseBody)
 async def post_search(
     body: SearchRequest,
+    request: Request,
     session: AsyncSession = Depends(get_session),
     tenant_ctx=Depends(get_tenant_context),
     embedder: EmbeddingProvider = Depends(get_default_embedder),
@@ -29,9 +30,10 @@ async def post_search(
         max_clearance=tenant_ctx.max_clearance,
         departments=tuple(tenant_ctx.departments),
     )
+    correlation_id = getattr(request.state, "correlation_id", None) or uuid.uuid4()
     response = await search(
         session=session, ctx=ctx, embedder=embedder,
-        query=body.query, correlation_id=uuid.uuid4(), top_k=body.top_k,
+        query=body.query, correlation_id=correlation_id, top_k=body.top_k,
     )
     return SearchResponseBody(
         results=[

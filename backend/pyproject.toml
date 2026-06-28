@@ -28,6 +28,9 @@ dependencies = [
     # Phase C
     "spacy>=3.7,<4.0",
     "groq>=0.13,<0.14",
+    # Phase D
+    "structlog>=24.4,<25.0",
+    "pyyaml>=6.0,<7.0",
 ]
 
 [project.optional-dependencies]
