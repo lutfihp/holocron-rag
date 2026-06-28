@@ -44,6 +44,14 @@ The exit criterion for Phase C is that both headline demos from the design spec 
 | 3 | Conflict cache impl | `functools.lru_cache(maxsize=256)` wrapping the LLM judge call only. Module-global, lost on process restart. | No Redis needed in Phase C. 256 entries comfortably exceeds expected unique judged pairs over the corpus. |
 | 4 | Prefilter pair cap | Max 4 pairs sent to the judge per query. Pairs ranked by ascending `a.rank + b.rank` (lower = better). | Bounds LLM cost. Corpus typically yields 1–2 pairs after prefilter; 4 is the safety belt. |
 | 5 | Answer synthesizer | LlamaIndex `CompactAndRefine` with a custom `text_qa_template` and `refine_template`. | Matches the design spec §10.3. Familiar canonical RAG stack. Refine template only fires if a future chunk-size increase pushes context past one batch. |
+
+> **Phase D amendment (2026-06-28):** Phase C shipped a *pattern-only* implementation
+> (compact context block + single LLM call) without instantiating the LlamaIndex
+> synthesizer object. Phase D Task 2 replaces this with a real `CompactAndRefine`
+> synthesizer driven through a thin `HolocronGroqLLM` adapter that forwards calls
+> to `GroqLLMClient.complete_text`. Retry/fallback policy remains in
+> `GroqLLMClient`; the adapter is wire-only.
+
 | 6 | Groq primary model | `llama-3.3-70b-versatile`. | Already configured in environment via `GROQ_API_KEY`. Strong quality for both judge and synthesis. |
 | 7 | Groq fallback model | `llama-3.1-8b-instant` on persistent rate-limit. | More lenient rate limits; smaller but acceptable for both call paths. |
 | 8 | Retry ladder | 3 attempts on primary (backoff 0.5s → 1s → 2s), then 3 attempts on fallback (same backoff). Six total before raising `LLMUnavailable`. | Robust enough for live demos without disk caching. |

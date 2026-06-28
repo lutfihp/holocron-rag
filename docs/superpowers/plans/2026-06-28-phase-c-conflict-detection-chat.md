@@ -379,6 +379,11 @@ def _load_spacy() -> Any:
 
     return spacy.load(_MODEL_NAME, disable=["parser", "lemmatizer"])  # keep tagger + ner
 
+# > **Shipped deviation (Phase D doc update, 2026-06-28):** the `disable=[...]` argument
+# > was removed during Phase C execution. `parser` is required for `doc.noun_chunks`
+# > (raises `E029` otherwise); `lemmatizer` is required for `token.lemma_` to return
+# > non-empty strings. The full default pipeline is loaded.
+
 
 def get_default_extractor() -> Any:
     """Cached singleton — spaCy model loads once per process."""
@@ -810,6 +815,13 @@ class GroqLLMClient:
 
     async def _sleep(self, seconds: float) -> None:
         await asyncio.sleep(seconds)
+
+# > **Shipped deviation (Phase D doc update, 2026-06-28):** the actual
+# > `_run_with_ladder` wraps the call with `inspect.isawaitable(self._sleep(...))`
+# > so tests can monkeypatch `_sleep` to a sync lambda. The retry loop also skips
+# > the sleep on the final attempt (avoids 2s wasted tail latency before raising).
+# > Phase D Tier 4 backlog flags the `inspect.isawaitable` shim as cosmetic cleanup
+# > to revisit if `_sleep` is ever made uniformly async in tests.
 
     # ---- public API ----
     async def complete_json(self, prompt: str) -> dict:
