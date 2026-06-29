@@ -39,7 +39,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+      const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" });
       if (res.status === 401) {
         router.replace("/login?next=/chat");
         return;
