@@ -45,7 +45,15 @@ export default function MePage() {
             <p className="text-sm text-slate-500">Departments</p>
             <p className="font-medium">{user.departments.join(', ') || '—'}</p>
           </div>
-          <Button variant="outline" onClick={onLogout}>Sign out</Button>
+          <div className="flex flex-wrap items-center gap-2 pt-2">
+            <Button onClick={() => router.push('/chat')}>Open chat</Button>
+            {(user.role === 'director' || user.role === 'executive') && (
+              <Button variant="secondary" onClick={() => router.push('/admin/audit')}>
+                View audit log
+              </Button>
+            )}
+            <Button variant="outline" onClick={onLogout}>Sign out</Button>
+          </div>
         </CardContent>
       </Card>
     </main>
