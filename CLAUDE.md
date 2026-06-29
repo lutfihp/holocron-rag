@@ -13,14 +13,14 @@
 3. **Phase B spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-27-phase-b-ingestion-retrieval.md) · [plan](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval.md) · [completion](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval-completion.md)
 4. **Phase C spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md) · [plan](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) · [completion](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md)
 5. **Phase D spec + plan:** [spec](docs/superpowers/specs/2026-06-28-phase-d-eval-audit-polish.md) · [plan](docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish.md) — completion record NOT written yet (pending end-of-phase manual walkthrough)
-6. **Original brief:** [initial_idea.txt](initial_idea.txt) — untracked; the user's starting prompt
+6. **Original brief:** `initial_idea.txt` at repo root — **gitignored** (kept local; not in public repo). The user's starting prompt.
 
 ## Phase status
 
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
 - **Phase C — Conflict Detection + Frontend:** ✅ done — code complete, manual demo walkthrough STILL deferred (rolled into the Phase D close-out). See the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md).
-- **Phase D — Eval + Audit + Polish:** 🟡 **CODE COMPLETE, demo walkthrough pending.** All 8 tasks shipped on branch `phase-d` (14 commits ahead of `main`). 181 backend tests passing (~35s). First eval scorecard committed at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions" below). **Pending in next session:** (1) `pnpm dev` + manual browser walkthrough of Phase C §7.1 + Phase D additions, (2) write Phase D completion record at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`, (3) decide merge of `phase-d` → `main` via `superpowers:finishing-a-development-branch`.
+- **Phase D — Eval + Audit + Polish:** 🟡 **CODE COMPLETE + MERGED + PUBLISHED, demo walkthrough still pending.** All 17 phase-d commits fast-forwarded into `main` on 2026-06-29 and pushed to **https://github.com/lutfihp/holocron-rag** (public). 181 backend tests passing (~43s). First eval scorecard at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions"). **Pending in next session:** (1) `pnpm dev` + manual browser walkthrough of Phase C §7.1 + Phase D additions; (2) write Phase D completion record at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`; (3) flip 🟡 → ✅ here. The `phase-d` local branch can be deleted (`git branch -d phase-d`) — main has everything.
 
 ## Tech stack as actually built (not what the spec listed)
 
@@ -87,6 +87,13 @@
 - **Tailwind v3/v4 mismatch in `frontend/app/globals.css`.** Phase A scaffold used v4-style `@apply border-border outline-ring/50` but the install is Tailwind v3.4.19. Fix: replaced the `@apply` rule with direct CSS using `color-mix(in oklch, var(--ring) 50%, transparent)` — sidesteps Tailwind class-generation entirely. Also added a **shadcn token bridge** to `tailwind.config.ts` (registers `colors.border`, `colors.ring`, `colors.background`, etc. as `var(--*)` references) — load-bearing for `/login` and `/me` which import `components/ui/{Button,Card,Input,Label}.tsx`. `pnpm build` is the actual verification (`tsc --noEmit` does NOT check Tailwind).
 - **Geist font import.** Phase A scaffold imported `Geist` from `next/font/google` which the installed `next` version doesn't expose. Fix: dropped the google import; kept the existing local `GeistVF.woff` / `GeistMonoVF.woff` via `next/font/local` (already present, already working). Less invasive than swapping to Inter.
 - **README has a mermaid architecture block** at the top of the file. GitHub renders it natively as inline SVG; viewers using raw markdown see the source. `docs/architecture/holocron-system.mmd` keeps the source-of-truth. Tried `pnpm dlx @mermaid-js/mermaid-cli -o ...svg` first but mmdc needs Chrome via Puppeteer (not installed) — embedded source is cleaner anyway.
+
+### Phase D post-merge: publish to GitHub (2026-06-29)
+
+- **`name: holocron` added to docker-compose.yml top line — load-bearing.** Pinning the Compose project name keeps the seeded `postgres_data` volume + container names stable regardless of where the repo is checked out.
+- **`.gitignore` now excludes `initial_idea.txt`.** Kept local; the user's raw kickoff prompt isn't in the public repo.
+- **GitHub repo description (pinned):** `Portfolio-grade RAG with clearance-filtered retrieval and LLM-as-judge conflict detection. FastAPI + Next.js + pgvector.` Topics suggested: `rag`, `retrieval-augmented-generation`, `fastapi`, `nextjs`, `pgvector`, `llm`, `groq`, `multi-tenant`, `rbac`, `portfolio-project`.
+- **Audited git history for secrets before pushing.** No real `gsk_*` Groq key in tracked content or history; commits use GitHub noreply alias; no personal absolute paths in tracked files. The `*_secret.md` / `*_top_secret.md` filenames in `corpus/` are intentional demo classification labels.
 
 ## Local dev quickstart
 
@@ -171,7 +178,7 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 ## Resuming next session — Phase D close-out
 
-Phase D code shipped on branch `phase-d` (14 commits ahead of `main`). The user explicitly deferred the final manual browser walkthrough to the next session (was 2026-06-28; today's date will determine the new walkthrough date).
+Phase D code lives in `main` (fast-forwarded from `phase-d` on 2026-06-29) and is public at https://github.com/lutfihp/holocron-rag. Only the **manual browser walkthrough** and **completion record** remain.
 
 **Sequence to close out Phase D:**
 
@@ -181,10 +188,11 @@ Phase D code shipped on branch `phase-d` (14 commits ahead of `main`). The user 
    - Frontend: `cd frontend && pnpm dev`. If you see a Tailwind error, restart dev — globals.css was fixed during Phase D Task 8 prep.
 2. **Walk the README §"60-second demo script"** (root `README.md`). It covers Demo A (HR dress code: executive.procurement conflict, employee.security refusal), Demo B (reactor coolant: director.engineering conflict, employee.security refusal), and the `/admin/audit` walkthrough. Note any surprises — particularly whether Demo B's conflict card actually surfaces in the browser (the eval scorecard found that retrieval may pull both citations from the 2019 manual rather than one each from 2019 and 2023, suppressing the conflict pair).
 3. **Inspect a backend log line** to confirm: JSON when `HOLOCRON_LOG_PRETTY` is unset; correlation_id present on every line inside the request. `x-correlation-id` should also appear on every HTTP response header.
-4. **Write Phase D completion record** at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`. Mirror the structure of the Phase C record. Cover: §7.1 + Phase D demo checklist results, test counts, eval scorecard summary (24/30, the conflict 0/6 retrieval finding), deviations (Geist fix scope, dropped `llama-index-llms-groq`, Tailwind v3/v4 mismatch fix, mermaid via embed instead of mmdc, lineage_id added to API schemas, `HOLOCRON_SKIP_WARMUP=1` in conftest).
+4. **Write Phase D completion record** at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`. Mirror the structure of the Phase C record. Cover: §7.1 + Phase D demo checklist results, test counts, eval scorecard summary (24/30, the conflict 0/6 retrieval finding), deviations (Geist fix scope, dropped `llama-index-llms-groq`, Tailwind v3/v4 mismatch fix, mermaid via embed instead of mmdc, lineage_id added to API schemas, `HOLOCRON_SKIP_WARMUP=1` in conftest, docker-compose project-name pin).
 5. **Tick the Phase C §7.1 checklist** in `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md` with the walkthrough verification date.
 6. **Mark Phase D ✅ in this CLAUDE.md** (the "Phase status" section, replacing 🟡).
-7. **`superpowers:finishing-a-development-branch`** to decide merge of `phase-d` → `main` (suggest squash-merge or per-task merge based on user preference; Phase A/B/C all merged directly to main per their pattern).
+7. *(Optional)* `git branch -d phase-d` to clean up the local branch; `main` is the only thing on origin.
+8. *(Optional)* Pin `holocron-rag` to the GitHub profile (Customize your pins, up to 6 repos).
 
 ### Phase D commits (`phase-d` branch, ahead of `main`)
 
