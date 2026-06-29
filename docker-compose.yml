@@ -1,3 +1,5 @@
+name: holocron
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
