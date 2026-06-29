@@ -20,7 +20,7 @@
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
 - **Phase C — Conflict Detection + Frontend:** ✅ done — code complete, manual demo walkthrough STILL deferred (rolled into the Phase D close-out). See the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md).
-- **Phase D — Eval + Audit + Polish:** 🟡 **CODE COMPLETE + MERGED + PUBLISHED, demo walkthrough still pending.** All 17 phase-d commits fast-forwarded into `main` on 2026-06-29 and pushed to **https://github.com/lutfihp/holocron-rag** (public). 181 backend tests passing (~43s). First eval scorecard at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions"). **Pending in next session:** (1) `pnpm dev` + manual browser walkthrough of Phase C §7.1 + Phase D additions; (2) write Phase D completion record at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`; (3) flip 🟡 → ✅ here. The `phase-d` local branch can be deleted (`git branch -d phase-d`) — main has everything.
+- **Phase D — Eval + Audit + Polish:** 🟡 **CODE COMPLETE + MERGED + PUBLISHED + WALKTHROUGH 4.5/5.** All 17 phase-d commits fast-forwarded into `main` on 2026-06-29 and pushed to **https://github.com/lutfihp/holocron-rag** (public). 181 backend tests passing (~43s). First eval scorecard at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions"). Manual walkthrough on 2026-06-30: steps 1, 2, 4, 5 ✅; step 3 (Demo B reactor conflict card) 🟡 — no conflict card surfaced because top-6 retrieval missed the 2023 §4 REVISED chunk (same retrieval-bound gap as the eval scorecard, reproduced again on an independent recruitment-age query). Two follow-up FE fix commits shipped on `main` while walking the demo: `ace4485` (chat page hits `/auth/me` not `/me` — bug caused `/chat` direct-URL forever-loading) and `8e14594` (added Open-chat + View-audit-log nav buttons on `/me`; login dead-ended there). **Pending in next session:** (1) write Phase D completion record at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`; (2) flip 🟡 → ✅ here. The `phase-d` local branch can be deleted (`git branch -d phase-d`) — main has everything.
 
 ## Tech stack as actually built (not what the spec listed)
 
@@ -176,23 +176,24 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 > **Demo A path:** use `executive.procurement` (has hr) vs `employee.security` for the contrast. `executive.fleet` doesn't see the HR supplement because clearance + department both gate access.
 
-## Resuming next session — Phase D close-out
+## Resuming next session — Phase D close-out (paperwork + optional spike)
 
-Phase D code lives in `main` (fast-forwarded from `phase-d` on 2026-06-29) and is public at https://github.com/lutfihp/holocron-rag. Only the **manual browser walkthrough** and **completion record** remain.
+Walkthrough complete as of 2026-06-30 (4.5/5 — see Phase status above). Phase D code lives in `main` and is public at https://github.com/lutfihp/holocron-rag. Only the **completion record** is blocking the ✅ flip; everything else is optional.
 
-**Sequence to close out Phase D:**
+**Sequence:**
 
-1. **Boot the stack.**
-   - `docker compose up -d postgres`
-   - Backend: `cd backend && uvicorn app.main:app --reload --port 8000`. Wait until `GET /healthz/ready` returns 200 (~50s cold; `HOLOCRON_SKIP_WARMUP=1` to skip if iterating).
-   - Frontend: `cd frontend && pnpm dev`. If you see a Tailwind error, restart dev — globals.css was fixed during Phase D Task 8 prep.
-2. **Walk the README §"60-second demo script"** (root `README.md`). It covers Demo A (HR dress code: executive.procurement conflict, employee.security refusal), Demo B (reactor coolant: director.engineering conflict, employee.security refusal), and the `/admin/audit` walkthrough. Note any surprises — particularly whether Demo B's conflict card actually surfaces in the browser (the eval scorecard found that retrieval may pull both citations from the 2019 manual rather than one each from 2019 and 2023, suppressing the conflict pair).
-3. **Inspect a backend log line** to confirm: JSON when `HOLOCRON_LOG_PRETTY` is unset; correlation_id present on every line inside the request. `x-correlation-id` should also appear on every HTTP response header.
-4. **Write Phase D completion record** at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`. Mirror the structure of the Phase C record. Cover: §7.1 + Phase D demo checklist results, test counts, eval scorecard summary (24/30, the conflict 0/6 retrieval finding), deviations (Geist fix scope, dropped `llama-index-llms-groq`, Tailwind v3/v4 mismatch fix, mermaid via embed instead of mmdc, lineage_id added to API schemas, `HOLOCRON_SKIP_WARMUP=1` in conftest, docker-compose project-name pin).
-5. **Tick the Phase C §7.1 checklist** in `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md` with the walkthrough verification date.
-6. **Mark Phase D ✅ in this CLAUDE.md** (the "Phase status" section, replacing 🟡).
-7. *(Optional)* `git branch -d phase-d` to clean up the local branch; `main` is the only thing on origin.
-8. *(Optional)* Pin `holocron-rag` to the GitHub profile (Customize your pins, up to 6 repos).
+1. **Write Phase D completion record** at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`. Mirror the Phase C record. Cover:
+   - Demo walkthrough results (steps 1, 2, 4, 5 ✅; step 3 🟡 — reactor conflict card suppressed by the 2023 §4 chunk missing from top-6; same root cause as the eval scorecard's conflict 0/6)
+   - Two real-world reproductions of the retrieval gap on 2026-06-30: "max age for recruitment?" missed §3 chunk (corpus says 17–45 at `corpus/hr/recruitment_policy_public.md` line 37); reactor query missed the 2023 §4 REVISED chunk. Both confirm Phase E's `chunk_size=256` re-ingest hypothesis from independent angles.
+   - Test count (181 backend, ~43s, default `-m 'not slow'`)
+   - Eval scorecard summary (24/30; conflict 0/6 retrieval-bound)
+   - Two post-merge FE fix commits shipped on main: `ace4485` (chat page `/me` → `/auth/me` bug) + `8e14594` (nav buttons on `/me`)
+   - Deviations: Geist fix scope, dropped `llama-index-llms-groq`, Tailwind v3/v4 mismatch fix, mermaid via embed instead of mmdc, lineage_id added to API schemas, `HOLOCRON_SKIP_WARMUP=1` in conftest, docker-compose project-name pin
+2. **Tick the Phase C §7.1 checklist** in `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md` with 2026-06-30 as the walkthrough verification date.
+3. **Mark Phase D ✅ in this CLAUDE.md** (the "Phase status" section, replacing 🟡).
+4. *(Optional, Phase E spike)* Try `chunk_size=512 → 256` re-ingest to see if Demo B step 3 surfaces the conflict card and lifts the eval conflict subscore. Throwaway branch; stays Phase E either way.
+5. *(Optional)* `git branch -d phase-d` if it still exists locally.
+6. *(Optional)* Pin `holocron-rag` to the GitHub profile (Customize your pins, up to 6 repos).
 
 ### Phase D commits (`phase-d` branch, ahead of `main`)
 
