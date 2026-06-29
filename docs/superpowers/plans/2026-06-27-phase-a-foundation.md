@@ -14,7 +14,7 @@
 
 ## Engineer Onboarding (read once before Task 1)
 
-- **Working directory** is `d:/Codading Repo/holocron/` (Windows). Use POSIX-style paths in commands where the tool accepts them; otherwise use Windows paths.
+- **Working directory** is the repo root (Windows). Use POSIX-style paths in commands where the tool accepts them; otherwise use Windows paths.
 - **Shell** is PowerShell. POSIX commands shown below also work in Git Bash if you prefer.
 - **Folder is not yet a git repository.** Task 1 initializes it.
 - **Python 3.11** must be on PATH. We use `python -m venv` + `pip` (no `uv`).
