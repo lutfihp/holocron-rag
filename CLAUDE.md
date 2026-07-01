@@ -12,15 +12,16 @@
 2. **Phase A plan + completion:** [plan](docs/superpowers/plans/2026-06-27-phase-a-foundation.md) · [completion](docs/superpowers/plans/2026-06-27-phase-a-foundation-completion.md)
 3. **Phase B spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-27-phase-b-ingestion-retrieval.md) · [plan](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval.md) · [completion](docs/superpowers/plans/2026-06-27-phase-b-ingestion-retrieval-completion.md)
 4. **Phase C spec + plan + completion:** [spec](docs/superpowers/specs/2026-06-28-phase-c-conflict-detection-chat.md) · [plan](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat.md) · [completion](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md)
-5. **Phase D spec + plan:** [spec](docs/superpowers/specs/2026-06-28-phase-d-eval-audit-polish.md) · [plan](docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish.md) — completion record NOT written yet (pending end-of-phase manual walkthrough)
-6. **Original brief:** `initial_idea.txt` at repo root — **gitignored** (kept local; not in public repo). The user's starting prompt.
+5. **Phase D spec + plan:** [spec](docs/superpowers/specs/2026-06-28-phase-d-eval-audit-polish.md) · [plan](docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish.md) — no completion record written. Manual walkthrough on 2026-06-30 (4.5/5) was the effective sign-off; Phase E started immediately after.
+6. **Phase E spec + Pass 1 + Pass 2 plans:** [spec](docs/superpowers/specs/2026-07-01-phase-e-frontend-revamp-design.md) · [Pass 1 plan](docs/superpowers/plans/2026-07-01-phase-e-pass-1-foundation.md) · [Pass 2 plan](docs/superpowers/plans/2026-07-01-phase-e-pass-2-hero.md) — no completion records. Both passes merged directly after clean `pnpm build`; browser walkthrough is user-side and still pending.
+7. **Original brief:** `initial_idea.txt` at repo root — **gitignored** (kept local; not in public repo). The user's starting prompt.
 
 ## Phase status
 
 - **Phase A — Foundation:** ✅ done (auth, RBAC scaffolding, schema, seeded users, /login + /me UI)
 - **Phase B — Ingestion + Classification-Aware Retrieval:** ✅ done (corpus, ingestion pipeline, hybrid RBAC-filtered retrieval, honest-refusal with audit, `POST /retrieval/search`)
 - **Phase C — Conflict Detection + Frontend:** ✅ done — code complete, manual demo walkthrough STILL deferred (rolled into the Phase D close-out). See the [Phase C completion record](docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md).
-- **Phase D — Eval + Audit + Polish:** 🟡 **CODE COMPLETE + MERGED + PUBLISHED + WALKTHROUGH 4.5/5.** All 17 phase-d commits fast-forwarded into `main` on 2026-06-29 and pushed to **https://github.com/lutfihp/holocron-rag** (public). 181 backend tests passing (~43s). First eval scorecard at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions"). Manual walkthrough on 2026-06-30: steps 1, 2, 4, 5 ✅; step 3 (Demo B reactor conflict card) 🟡 — no conflict card surfaced because top-6 retrieval missed the 2023 §4 REVISED chunk (same retrieval-bound gap as the eval scorecard, reproduced again on an independent recruitment-age query). Two follow-up FE fix commits shipped on `main` while walking the demo: `ace4485` (chat page hits `/auth/me` not `/me` — bug caused `/chat` direct-URL forever-loading) and `8e14594` (added Open-chat + View-audit-log nav buttons on `/me`; login dead-ended there). **Pending in next session:** (1) write Phase D completion record at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`; (2) flip 🟡 → ✅ here. The `phase-d` local branch can be deleted (`git branch -d phase-d`) — main has everything.
+- **Phase D — Eval + Audit + Polish:** ✅ **CODE COMPLETE + MERGED + PUBLISHED + WALKTHROUGH 4.5/5.** All 17 phase-d commits fast-forwarded into `main` on 2026-06-29 and pushed to **https://github.com/lutfihp/holocron-rag** (public). First eval scorecard at `backend/eval/reports/2026-06-28.md` (24/30 = 80%; conflict 0/6 is a real retrieval-bound finding, see "Phase D additions"). Manual walkthrough on 2026-06-30: steps 1, 2, 4, 5 ✅; step 3 (Demo B reactor conflict card) 🟡 — no conflict card surfaced because top-6 retrieval missed the 2023 §4 REVISED chunk (same retrieval-bound gap as the eval scorecard, reproduced again on an independent recruitment-age query). Two follow-up FE fix commits shipped on `main` while walking the demo: `ace4485` (chat page hits `/auth/me` not `/me` — bug caused `/chat` direct-URL forever-loading) and `8e14594` (added Open-chat + View-audit-log nav buttons on `/me`; login dead-ended there). No completion record was written — Phase E started immediately after and the walkthrough was the effective sign-off. The `chunk_size=256` re-ingest experiment (to lift conflict subscore) rolled forward to Phase F.
 - **Phase E — Frontend Revamp:** ✅ **CODE COMPLETE (Pass 1 + Pass 2).** Pass 1 (Foundation) merged to `main` on 2026-07-01: design tokens seeded from the local (gitignored) [design handoff](handoffs/design_handoff_holocron_frontend/README.md); every `slate-*`/`gray-*` migrated to semantic tokens; `.dark` block deleted; two emoji swapped for lucide icons (`Lock`, `TriangleAlert`); `TopNav` primitive persistent on `/me`, `/chat`, `/admin/*`; `ClearanceBadge` + `CitationChip` polished; mobile breakpoints on all 4 routes. Pass 2 (Hero) built on `phase-e-pass-2` branch on 2026-07-01: two additive read-only backend endpoints (`GET /me/recent-queries` + `GET /admin/audit/summary`, 6 new tests, total **187 backend tests**); `/login` 2-col branded split + `DemoAccountPicker`; `/me` identity hero + `RecentQueries` + `DemoQuestions` dashboard; `/chat` `CitationCard` hero (hover lift), `ConflictCard` split-diff with VS spine, `RefusalNote` hero with "Request access" copy-ref-to-clipboard, `EmptyState` hero with dept-seeded demo cards, `MessageAssistant` "Holocron" header with client-measured latency, `?q=…` prefill hook; `/admin/audit` `SummaryStats` row + chip/segmented filter bar + `DataTable` primitive with sticky header + zebra + initials avatar cell. **Deviations from plan:** (1) `PositionOut` doesn't carry classification, so `ConflictCard` looks it up from the citations list passed as a prop; (2) `ChatPage` wrapped in `<Suspense>` because Next 15 requires it for `useSearchParams` during static generation. Frontend has no test framework — verification is `pnpm build` + manual browser walk. See [spec](docs/superpowers/specs/2026-07-01-phase-e-frontend-revamp-design.md) · [Pass 1 plan](docs/superpowers/plans/2026-07-01-phase-e-pass-1-foundation.md) · [Pass 2 plan](docs/superpowers/plans/2026-07-01-phase-e-pass-2-hero.md).
 
 ## Tech stack as actually built (not what the spec listed)
@@ -89,6 +90,22 @@
 - **Geist font import.** Phase A scaffold imported `Geist` from `next/font/google` which the installed `next` version doesn't expose. Fix: dropped the google import; kept the existing local `GeistVF.woff` / `GeistMonoVF.woff` via `next/font/local` (already present, already working). Less invasive than swapping to Inter.
 - **README has a mermaid architecture block** at the top of the file. GitHub renders it natively as inline SVG; viewers using raw markdown see the source. `docs/architecture/holocron-system.mmd` keeps the source-of-truth. Tried `pnpm dlx @mermaid-js/mermaid-cli -o ...svg` first but mmdc needs Chrome via Puppeteer (not installed) — embedded source is cleaner anyway.
 
+### Phase E additions
+
+- **Design tokens live in `frontend/app/globals.css` at `:root`**, exposed as Tailwind utilities in `tailwind.config.ts::theme.extend.colors`. Never hard-code `slate-*`/`gray-*` in TSX — the grep `grep -rE "\b(slate|gray)-[0-9]+" app components` must return zero hits in `frontend/app` and `frontend/components`. Semantic clearance/conflict groups are `bg-public`, `bg-restricted`, `bg-secret`, `bg-top-secret`, `bg-conflict` (each with `-foreground` and `-border` variants). Radius scale is `rounded-sm/md/lg` mapped to `--r-sm/md/lg` (8/10/14px). No `rounded-2xl` and no bare `rounded` allowed in app code.
+- **`.dark` block is deleted.** Dark mode is out of scope for Phase E. Any Phase F re-add needs dark hero mocks the handoff didn't produce.
+- **`TopNav` primitive at `frontend/components/TopNav.tsx`** renders on `/me`, `/chat`, and `/admin/*` — not `/login`. Active-tab detection uses `usePathname`. Audit-log tab is role-gated (`director`/`executive`). Consumes `initials()` from `frontend/lib/initials.ts`.
+- **`CitationChip` primitive at `frontend/components/CitationChip.tsx`** — 3-state chip (default `bg-accent`, hover `bg-primary`, active + `ring-3 ring-accent`). Used inline by `MessageAssistant.renderAnswerText`; anchors to `#cite-{n}`.
+- **Two additive backend endpoints** are pure reads on `audit_events` with no new tables: `GET /me/recent-queries?limit=N` (any logged-in user reads own data; router at `backend/app/api/user.py`) and `GET /admin/audit/summary` (role-gated director/executive; UTC-day counts; lives in existing `admin.py`). Frontend types at `lib/types/user.ts` + `lib/types/audit-summary.ts`; client methods `api.recentQueries()` + `api.auditSummary()`.
+- **`PositionOut` doesn't carry classification.** `ConflictCard` looks up each position's clearance from a `citations` array passed as a prop (`citations.find(c => c.marker === position_a.marker)`). If you add a new consumer of position data, remember it needs the citations context. `MessageAssistant` is the current call site; it passes `payload.citations`.
+- **`ChatPage` MUST be wrapped in `<Suspense>` in Next.js 15** — `useSearchParams` triggers a CSR-bailout during static generation without one. See `frontend/app/chat/page.tsx`: the exported default is a thin `<Suspense>` wrapper around `ChatPageInner`. Any new page that uses `useSearchParams` needs the same treatment or `pnpm build` fails at the export/prerender step.
+- **Client-side latency measurement on `/chat/ask`.** Server-side latency exists in `audit_events.latency_ms` but was NOT exposed in `ChatResponse`. Frontend times the fetch with `performance.now()`, threads through `Turn.assistant.latencyMs`, and displays in `MessageAssistant`'s mono header. Backend and client latency differ (network + parse overhead); intentional tradeoff to avoid touching backend schema.
+- **`?q=…` URL-param prefill on `/chat`.** Chat page reads the query param on mount and calls `send(q)` once. Used by `/me` RecentQueries row clicks and DemoQuestions cards to deep-link questions. Guarded with `prefillOnceRef` to prevent repeat sends.
+- **Demo-question content is department-keyed in `frontend/lib/demo-questions.ts`.** `getDemoQuestions(departments)` picks the first mapped department; falls back to a generic set of 3 questions. Consumed by both `/me` `DemoQuestions` component and `/chat` `EmptyState`.
+- **The two Phase D nav-fix commits are partially superseded.** `ace4485` (chat `/me` → `/auth/me`) still applies. `8e14594` (ad-hoc nav buttons on `/me`) had its buttons removed when `TopNav` shipped in Pass 1. Pass 2's `/me` page re-added Open-chat / View-audit-log / Sign-out inside the identity hero card, but those are page CTAs, not nav — `TopNav` owns cross-route navigation.
+- **`AuditRow` moved from `<tr>` to `<button>` inside a CSS grid.** The `<table>` markup in `/admin/audit` was replaced by the `DataTable` primitive (`frontend/app/admin/audit/components/DataTable.tsx`). Grid columns are pinned as `AUDIT_COLUMNS = "150px 1.4fr 90px 90px 90px 40px"` — exported from `DataTable.tsx` and consumed by `AuditRow.tsx` to keep header + row columns aligned.
+- **Two site-local inline oklch shades are allowed** in TSX (spec-sanctioned): `bg-[oklch(0.992_0.004_247)]` for the right conflict panel tint, `bg-[oklch(0.988_0.003_247)]` for zebra table rows. Don't try to tokenize these — they're one-off shades.
+
 ### Phase D post-merge: publish to GitHub (2026-06-29)
 
 - **`name: holocron` added to docker-compose.yml top line — load-bearing.** Pinning the Compose project name keeps the seeded `postgres_data` volume + container names stable regardless of where the repo is checked out.
@@ -145,9 +162,9 @@ make eval   # ~2 min for 30 questions; ~60 Groq calls
 cd backend && .\.venv\Scripts\Activate.ps1 && python -m pytest -v
 ```
 
-Currently: **181 tests, all passing** (default `-m 'not slow'`, ~32–40 s). Plus 4 opt-in slow tests (`pytest -m slow`): 2 real-BGE from Phase B + 2 real-spaCy from Phase C. Phase D added ~50 new tests across audit/correlation, adapter, warmup, healthz, logging, middleware, admin endpoint, eval scorer/runner/report.
+Currently: **187 tests, all passing** (default `-m 'not slow'`, ~40–45 s). Plus 4 opt-in slow tests (`pytest -m slow`): 2 real-BGE from Phase B + 2 real-spaCy from Phase C. Phase D added ~50 new tests across audit/correlation, adapter, warmup, healthz, logging, middleware, admin endpoint, eval scorer/runner/report. Phase E added 6 more: 3 for `/me/recent-queries` (own-data-only, limit clamp, 401), 3 for `/admin/audit/summary` (count correctness, role gate, 401).
 
-**Known flake:** `tests/test_security.py::test_tampered_token_rejected` flakes occasionally — Phase A test that random-mutates JWT bytes and has non-zero false-pass probability. Always passes on rerun. Hardening deferred (now to Phase E / post-MVP).
+**Known flake:** `tests/test_security.py::test_tampered_token_rejected` flakes occasionally — Phase A test that random-mutates JWT bytes and has non-zero false-pass probability. Always passes on rerun. Hardening deferred to Phase F / post-MVP. Fired once during the Phase E Pass 2 → main merge on 2026-07-01 and passed on rerun.
 
 ## Corpus
 
@@ -177,24 +194,23 @@ Spec §6 coverage: 3 lineage pairs · 4 classification ladders (dress code, recr
 
 > **Demo A path:** use `executive.procurement` (has hr) vs `employee.security` for the contrast. `executive.fleet` doesn't see the HR supplement because clearance + department both gate access.
 
-## Resuming next session — Phase D close-out (paperwork + optional spike)
+## Resuming next session — Phase F planning (post-MVP polish)
 
-Walkthrough complete as of 2026-06-30 (4.5/5 — see Phase status above). Phase D code lives in `main` and is public at https://github.com/lutfihp/holocron-rag. Only the **completion record** is blocking the ✅ flip; everything else is optional.
+All MVP phases (A → E) are ✅ code-complete and merged to `main` at `a2a02d7`, pushed to https://github.com/lutfihp/holocron-rag on 2026-07-01. 187 backend tests passing. Frontend `pnpm build` clean. **The one thing still owed is a manual browser walkthrough of Phase E** — the visual verification is user-side. Screenshots for the portfolio are the deliverable there.
 
-**Sequence:**
+**Suggested first moves for the next session:**
 
-1. **Write Phase D completion record** at `docs/superpowers/plans/2026-06-28-phase-d-eval-audit-polish-completion.md`. Mirror the Phase C record. Cover:
-   - Demo walkthrough results (steps 1, 2, 4, 5 ✅; step 3 🟡 — reactor conflict card suppressed by the 2023 §4 chunk missing from top-6; same root cause as the eval scorecard's conflict 0/6)
-   - Two real-world reproductions of the retrieval gap on 2026-06-30: "max age for recruitment?" missed §3 chunk (corpus says 17–45 at `corpus/hr/recruitment_policy_public.md` line 37); reactor query missed the 2023 §4 REVISED chunk. Both confirm Phase E's `chunk_size=256` re-ingest hypothesis from independent angles.
-   - Test count (181 backend, ~43s, default `-m 'not slow'`)
-   - Eval scorecard summary (24/30; conflict 0/6 retrieval-bound)
-   - Two post-merge FE fix commits shipped on main: `ace4485` (chat page `/me` → `/auth/me` bug) + `8e14594` (nav buttons on `/me`)
-   - Deviations: Geist fix scope, dropped `llama-index-llms-groq`, Tailwind v3/v4 mismatch fix, mermaid via embed instead of mmdc, lineage_id added to API schemas, `HOLOCRON_SKIP_WARMUP=1` in conftest, docker-compose project-name pin
-2. **Tick the Phase C §7.1 checklist** in `docs/superpowers/plans/2026-06-28-phase-c-conflict-detection-chat-completion.md` with 2026-06-30 as the walkthrough verification date.
-3. **Mark Phase D ✅ in this CLAUDE.md** (the "Phase status" section, replacing 🟡).
-4. *(Optional, Phase E spike)* Try `chunk_size=512 → 256` re-ingest to see if Demo B step 3 surfaces the conflict card and lifts the eval conflict subscore. Throwaway branch; stays Phase E either way.
-5. *(Optional)* `git branch -d phase-d` if it still exists locally.
-6. *(Optional)* Pin `holocron-rag` to the GitHub profile (Customize your pins, up to 6 repos).
+1. **Manual walkthrough of Phase E.** Walk `/login` (2-col split + demo picker) → `/me` (identity hero + Recent queries + Try-a-demo-question) → `/chat` (assistant Sparkles header, CitationCard hover lift, ConflictCard split-diff, RefusalNote with Request-access button, EmptyState with demo cards) → `/admin/audit` (SummaryStats row + chip filter bar + DataTable with expand). Capture screenshots. Any bugs get a fresh commit on `main`.
+2. **Choose a Phase F focus.** Nothing has a spec/plan yet. Highest-value candidates from the "Deferred to Phase F" bucket below:
+   - **`chunk_size=512 → 256` re-ingest** (biggest lift — moves the eval conflict subscore from 0/6 and Demo B step 3 🟡 → ✅ in one throwaway branch; ~1–2 hrs)
+   - `/admin/documents` upload UI (nice-to-have; `scripts/seed_corpus.py` already covers the demo)
+   - Real-Groq slow test for `/chat/ask` end-to-end (`@pytest.mark.slow`)
+   - Streaming `/chat/ask` (SSE) — needs its own design pass
+3. **Start with brainstorming.** Phase F has no spec, plan, or branch. Use `/superpowers:brainstorming` when a specific direction is chosen.
+
+**Optional local cleanup:**
+- `git branch -d phase-d phase-e phase-e-pass-2` — all three are safe to delete since everything's on `main`.
+- Pin `holocron-rag` to the GitHub profile (Customize your pins, up to 6 repos).
 
 ### Phase D commits (`phase-d` branch, ahead of `main`)
 
@@ -216,19 +232,22 @@ In order:
 
 ### Deferred to Phase F / post-MVP
 
-Spec §3 of Phase D explicitly cut these; carry forward:
+Spec §3 of Phase D explicitly cut some of these; Phase E spec §4 explicitly cut others. All carried forward past both merges:
 
 - `/admin/documents` upload + list UI (`scripts/seed_corpus.py` covers the demo)
 - Real-Groq slow test (`@pytest.mark.slow`) for `/chat/ask` end-to-end
-- Streaming `/chat/ask` (SSE) — conflict-card-before-stream needs Phase 2 design
+- Streaming `/chat/ask` (SSE) — conflict-card-before-stream needs its own design pass
 - arq + Redis re-embed worker
 - General disk cache for Groq responses (eval-gated; eval scorecard didn't show enough repeat-query benefit to justify)
 - LlamaIndex `SemanticSplitter` swap (eval-gated)
-- **`chunk_size=512` likely too large** — eval confirmed retrieval gap for conflict pairs. Likeliest Phase E experiment: re-ingest at `chunk_size=256` and re-run eval. Should lift conflict pass rate.
+- **`chunk_size=512` likely too large** — eval confirmed retrieval gap for conflict pairs. Likeliest Phase F experiment: re-ingest at `chunk_size=256` and re-run eval. Should lift conflict pass rate.
 - Conflict cache FIFO → true LRU (functional difference = 0 at cap=256)
 - `_sleep` shim cleanup in `GroqLLMClient` (cosmetic)
-- `tests/test_security.py::test_tampered_token_rejected` JWT-fuzz hardening
+- `tests/test_security.py::test_tampered_token_rejected` JWT-fuzz hardening (fired once during Phase E merge; rerun cleared)
 - CI eval-smoke (eval stays local-only by Phase D spec §4 decision 3)
+- **Dark mode.** Phase E deleted the `.dark` block outright (out of scope). Any Phase F re-add needs its own dark hero mocks (the handoff was light-only).
+- **Contradicting-phrase `<mark>` highlighting inside `ConflictCard`.** Needs the LLM to output structured markup — deferred from Phase E Pass 2.
+- **Backend-measured latency in `ChatResponse`.** Currently `audit_events.latency_ms` is server-side but only client-side latency reaches the assistant header. If a Phase F pass wants an authoritative number, expose `latency_ms` on `ChatResponse`.
 
 ### Non-functional notes that bit during Phase D
 
