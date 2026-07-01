@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Database } from "lucide-react";
 
 import { ClearanceBadge } from "@/components/ClearanceBadge";
+import { initials } from "@/lib/initials";
 import type { Clearance } from "@/lib/types/chat";
 
 export interface TopNavUser {
@@ -25,13 +26,6 @@ const TABS: TabDef[] = [
   { href: "/chat", label: "Chat", match: (p) => p.startsWith("/chat") },
   { href: "/admin/audit", label: "Audit log", match: (p) => p.startsWith("/admin"), requiresAdmin: true },
 ];
-
-function initials(username: string): string {
-  const [head, tail] = username.split(".");
-  const first = head?.[0] ?? "";
-  const second = tail?.[0] ?? head?.[1] ?? "";
-  return (first + second).toUpperCase() || "?";
-}
 
 export function TopNav({ user }: { user: TopNavUser }) {
   const pathname = usePathname();
