@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, ScrollText } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { fetchAuditPage } from "@/lib/audit-api";
 import type {
   AuditPage,
@@ -11,6 +13,8 @@ import type {
 
 import { AuditFilters } from "./components/AuditFilters";
 import { AuditRow } from "./components/AuditRow";
+import { DataTable } from "./components/DataTable";
+import { SummaryStats } from "./components/SummaryStats";
 
 export default function AuditViewerPage() {
   const [filters, setFilters] = useState<AuditQuery>({});
@@ -42,56 +46,48 @@ export default function AuditViewerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
+  const emptyStateNode = (
+    <div className="flex flex-col items-center justify-center gap-2 py-14 text-center">
+      <ScrollText className="w-6 h-6 text-muted-foreground" aria-hidden />
+      <div className="text-[13px] text-muted-foreground">
+        No audit rows for the current filter.
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Audit log</h1>
-      <p className="text-sm text-muted-foreground">
-        One row per <code>correlation_id</code> (one /chat/ask = one row). Click any
-        row to inspect the underlying query, retrieved IDs, refusal ref, response,
-        and conflict subjects.
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-[22px] font-semibold">Audit log</h1>
+        <p className="text-[13px] text-muted-foreground mt-1">
+          One row per <code className="font-mono text-[12px]">correlation_id</code> (one
+          /chat/ask = one row). Click any row to inspect the underlying query,
+          retrieved IDs, refusal ref, response, and conflict subjects.{" "}
+          <span className="text-subtle">Director / Executive only.</span>
+        </p>
+      </div>
+
+      <SummaryStats />
+
       <AuditFilters value={filters} onChange={setFilters} />
+
       {error && (
         <div className="border border-destructive/40 bg-destructive/10 text-destructive rounded-md p-3 text-sm">
           {error}
         </div>
       )}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead className="bg-muted">
-            <tr>
-              <th className="text-left p-2">Time (UTC)</th>
-              <th className="text-left p-2">User</th>
-              <th className="text-right p-2">Latency</th>
-              <th className="text-left p-2">Refusal</th>
-              <th className="text-left p-2">Conflict</th>
-              <th className="text-right p-2">Events</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !loading && (
-              <tr>
-                <td colSpan={6} className="p-4 text-center text-muted-foreground">
-                  No audit rows for the current filter.
-                </td>
-              </tr>
-            )}
-            {rows.map((r) => (
-              <AuditRow key={r.correlation_id} row={r} />
-            ))}
-          </tbody>
-          </table>
-        </div>
-      </div>
+
+      <DataTable isEmpty={rows.length === 0 && !loading} emptyState={emptyStateNode}>
+        {rows.map((r, i) => (
+          <AuditRow key={r.correlation_id} row={r} index={i} />
+        ))}
+      </DataTable>
+
       {cursor && (
-        <button
-          onClick={() => load(false)}
-          disabled={loading}
-          className="px-3 py-1.5 border border-border rounded-md hover:bg-muted text-sm"
-        >
+        <Button variant="outline" disabled={loading} onClick={() => load(false)}>
+          <ChevronDown className="w-4 h-4 mr-1" aria-hidden />
           {loading ? "Loading…" : "Load more"}
-        </button>
+        </Button>
       )}
     </div>
   );
