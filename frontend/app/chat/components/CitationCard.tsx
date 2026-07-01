@@ -5,19 +5,22 @@ export function CitationCard({ citation }: { citation: CitationOut }) {
   return (
     <div
       id={`cite-${citation.marker}`}
-      className="p-3 border border-border rounded-lg bg-card"
+      className="p-4 border border-border rounded-lg bg-card transition hover:-translate-y-0.5 hover:shadow-md hover:border-border-strong"
     >
-      <div className="flex items-center gap-2 mb-1">
-        <span className="bg-accent text-accent-foreground px-1.5 py-0.5 rounded-sm text-[11px] font-mono font-semibold">
-          [{citation.marker}]
+      <div className="flex items-center justify-between mb-2">
+        <span className="bg-primary text-primary-foreground rounded-md w-6 h-6 grid place-items-center font-mono text-[12px] font-semibold">
+          {citation.marker}
         </span>
         <ClearanceBadge classification={citation.classification} />
-        <span className="text-[10px] text-muted-foreground">
-          {citation.department} · {citation.effective_date}
-        </span>
       </div>
-      <div className="text-xs font-semibold mb-1">{citation.document_title}</div>
-      <div className="text-[11px] text-muted-foreground leading-snug">{citation.snippet}</div>
+      <div className="text-[10px] font-mono uppercase tracking-[0.08em] text-subtle mb-1">
+        {citation.department} · {citation.effective_date}
+      </div>
+      <div className="text-sm font-semibold mb-1 leading-snug">{citation.document_title}</div>
+      <div className="text-[13px] text-muted-foreground leading-snug mb-2">{citation.snippet}</div>
+      <div className="text-[11px] font-mono uppercase tracking-[0.08em] text-primary">
+        View source ↗
+      </div>
     </div>
   );
 }
