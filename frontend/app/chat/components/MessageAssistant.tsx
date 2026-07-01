@@ -1,5 +1,5 @@
 import React from "react";
-import { TriangleAlert } from "lucide-react";
+import { Sparkles, TriangleAlert } from "lucide-react";
 import { ChatResponse } from "@/lib/types/chat";
 import { CitationChip } from "@/components/CitationChip";
 import { CitationCard } from "./CitationCard";
@@ -16,11 +16,29 @@ function renderAnswerText(text: string) {
   });
 }
 
-export function MessageAssistant({ payload }: { payload: ChatResponse }) {
+export function MessageAssistant({
+  payload,
+  latencyMs,
+}: {
+  payload: ChatResponse;
+  latencyMs?: number;
+}) {
+  const nSources = payload.citations.length;
+  const nConflicts = payload.conflicts.length;
   return (
     <div className="self-start w-full max-w-[95%] flex flex-col gap-3">
       <div className="bg-card rounded-lg rounded-tl-md p-4 text-sm leading-relaxed">
-        {renderAnswerText(payload.answer.text)}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-md bg-primary text-primary-foreground grid place-items-center">
+            <Sparkles className="w-3.5 h-3.5" aria-hidden />
+          </div>
+          <div className="text-[13px] font-semibold">Holocron</div>
+          <div className="text-[11px] font-mono uppercase tracking-[0.08em] text-muted-foreground ml-auto">
+            {nSources} source{nSources === 1 ? "" : "s"} · {nConflicts} conflict{nConflicts === 1 ? "" : "s"}
+            {latencyMs !== undefined ? ` · ${(latencyMs / 1000).toFixed(2)}s` : ""}
+          </div>
+        </div>
+        <div className="leading-relaxed">{renderAnswerText(payload.answer.text)}</div>
       </div>
 
       {payload.citations.length > 0 && (

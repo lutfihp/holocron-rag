@@ -4,7 +4,7 @@ import { MessageUser } from "./MessageUser";
 
 export type Turn =
   | { kind: "user"; id: string; query: string }
-  | { kind: "assistant"; id: string; payload: ChatResponse }
+  | { kind: "assistant"; id: string; payload: ChatResponse; latencyMs?: number }
   | { kind: "assistant-pending"; id: string }
   | { kind: "assistant-error"; id: string; message: string; previousQuery: string };
 
@@ -22,7 +22,7 @@ export function ChatThread({
           case "user":
             return <MessageUser key={t.id} query={t.query} />;
           case "assistant":
-            return <MessageAssistant key={t.id} payload={t.payload} />;
+            return <MessageAssistant key={t.id} payload={t.payload} latencyMs={t.latencyMs} />;
           case "assistant-pending":
             return (
               <div

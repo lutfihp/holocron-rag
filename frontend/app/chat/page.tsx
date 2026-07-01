@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LLMUnavailableError, postChatAsk } from "@/lib/chat-api";
 import { TopNav } from "@/components/TopNav";
+import { getDemoQuestions } from "@/lib/demo-questions";
 import { Clearance } from "@/lib/types/chat";
 import { ChatInput } from "./components/ChatInput";
 import { ChatThread, Turn } from "./components/ChatThread";
+import { EmptyState } from "./components/EmptyState";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -19,23 +21,20 @@ interface MeResponse {
   tenant: { id: string; name: string; role_label: string };
 }
 
-const SUGGESTED = [
-  "What's the dress-code policy for off-base events?",
-  "What is the reactor coolant shutdown sequence?",
-];
-
 let _idCounter = 0;
 function nextId() {
   _idCounter += 1;
   return `t${_idCounter}`;
 }
 
-export default function ChatPage() {
+function ChatPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const prefillOnceRef = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -58,11 +57,15 @@ export default function ChatPage() {
     const pendingTurn: Turn = { kind: "assistant-pending", id: nextId() };
     setTurns((t) => [...t, userTurn, pendingTurn]);
     setSending(true);
+    const startedAt = performance.now();
     try {
       const payload = await postChatAsk(query);
+      const latencyMs = Math.round(performance.now() - startedAt);
       setTurns((t) =>
         t.map((x) =>
-          x.id === pendingTurn.id ? { kind: "assistant", id: x.id, payload } : x
+          x.id === pendingTurn.id
+            ? { kind: "assistant", id: x.id, payload, latencyMs }
+            : x
         )
       );
     } catch (e) {
@@ -87,6 +90,16 @@ export default function ChatPage() {
     }
   }
 
+  useEffect(() => {
+    if (prefillOnceRef.current || !me) return;
+    const q = searchParams.get("q");
+    if (q && q.trim()) {
+      prefillOnceRef.current = true;
+      send(q.trim());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me, searchParams]);
+
   if (!me) {
     return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   }
@@ -96,26 +109,11 @@ export default function ChatPage() {
       <TopNav user={{ username: me.username, role: me.role, max_clearance: me.max_clearance }} />
 
       {turns.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-md text-center w-full">
-            <div className="mb-4 text-sm text-muted-foreground">
-              Welcome, {me.tenant.role_label}. Try a question:
-            </div>
-            <div className="flex flex-col gap-2">
-              {SUGGESTED.map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  className="border border-border rounded-lg px-3 py-2 text-sm text-left hover:bg-muted"
-                  onClick={() => send(q)}
-                  disabled={sending}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <EmptyState
+          questions={getDemoQuestions(me.departments)}
+          onPick={send}
+          disabled={sending}
+        />
       ) : (
         <ChatThread turns={turns} onRetry={(q) => send(q)} />
       )}
@@ -123,5 +121,13 @@ export default function ChatPage() {
 
       <ChatInput onSend={send} disabled={sending} />
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
+      <ChatPageInner />
+    </Suspense>
   );
 }
