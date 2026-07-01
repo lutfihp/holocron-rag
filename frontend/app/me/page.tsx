@@ -38,11 +38,11 @@ export default function MePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-500">Max clearance:</span>
+            <span className="text-sm text-muted-foreground">Max clearance:</span>
             <ClearanceBadge classification={user.max_clearance} />
           </div>
           <div>
-            <p className="text-sm text-slate-500">Departments</p>
+            <p className="text-sm text-muted-foreground">Departments</p>
             <p className="font-medium">{user.departments.join(', ') || '—'}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-2">
