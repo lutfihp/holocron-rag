@@ -12,135 +12,73 @@
     --font-sans: var(--font-sans)
   }
   :root {
-
-    --background: oklch(1 0 0);
-
-    --foreground: oklch(0.145 0 0);
-
+    /* Neutrals & brand (Phase E — handoff oklch values) */
+    --background: oklch(0.984 0.003 247);
+    --foreground: oklch(0.205 0.014 257);
+    --surface: oklch(0.976 0.004 247);           /* NEW — chat thread bg, panel wells */
     --card: oklch(1 0 0);
-
-    --card-foreground: oklch(0.145 0 0);
-
+    --card-foreground: oklch(0.205 0.014 257);
     --popover: oklch(1 0 0);
-
-    --popover-foreground: oklch(0.145 0 0);
-
-    --primary: oklch(0.205 0 0);
-
-    --primary-foreground: oklch(0.985 0 0);
-
-    --secondary: oklch(0.97 0 0);
-
-    --secondary-foreground: oklch(0.205 0 0);
-
-    --muted: oklch(0.97 0 0);
-
-    --muted-foreground: oklch(0.556 0 0);
-
-    --accent: oklch(0.97 0 0);
-
-    --accent-foreground: oklch(0.205 0 0);
-
+    --popover-foreground: oklch(0.205 0.014 257);
+    --primary: oklch(0.47 0.13 264);              /* corporate indigo */
+    --primary-foreground: oklch(0.985 0.004 247);
+    --secondary: oklch(0.967 0.004 247);
+    --secondary-foreground: oklch(0.205 0.014 257);
+    --muted: oklch(0.967 0.004 247);
+    --muted-foreground: oklch(0.53 0.013 257);
+    --subtle: oklch(0.62 0.012 257);              /* NEW — mono metadata, labels */
+    --accent: oklch(0.955 0.022 264);
+    --accent-foreground: oklch(0.42 0.12 264);
     --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.916 0.006 247);
+    --border-strong: oklch(0.86 0.008 247);       /* NEW — inputs, hover borders */
+    --input: oklch(0.916 0.006 247);
+    --ring: oklch(0.47 0.13 264);
 
-    --border: oklch(0.922 0 0);
+    /* Semantic — clearance & state (Phase E — reserved for meaning, never decoration) */
+    --public-bg: oklch(0.952 0.045 152);
+    --public-fg: oklch(0.43 0.085 152);
+    --public-border: oklch(0.86 0.06 152);
+    --restricted-bg: oklch(0.964 0.05 85);
+    --restricted-fg: oklch(0.5 0.1 72);
+    --restricted-border: oklch(0.88 0.07 85);
+    --secret-bg: oklch(0.95 0.045 25);
+    --secret-fg: oklch(0.52 0.16 25);
+    --secret-border: oklch(0.88 0.06 25);
+    --top-secret-bg: oklch(0.32 0.09 25);
+    --top-secret-fg: oklch(0.95 0.02 25);
+    --top-secret-border: oklch(0.26 0.08 25);
+    --conflict-bg: oklch(0.972 0.022 25);
+    --conflict-fg: oklch(0.5 0.17 25);
+    --conflict-border: oklch(0.86 0.06 25);
 
-    --input: oklch(0.922 0 0);
-
-    --ring: oklch(0.708 0 0);
-
+    /* Charts — retained (unchanged from Phase D scaffold) */
     --chart-1: oklch(0.87 0 0);
-
     --chart-2: oklch(0.556 0 0);
-
     --chart-3: oklch(0.439 0 0);
-
     --chart-4: oklch(0.371 0 0);
-
     --chart-5: oklch(0.269 0 0);
 
+    /* Legacy shadcn radius var kept for compatibility with pre-existing UI */
     --radius: 0.625rem;
 
+    /* Radius scale (Phase E — chips/inputs/cards) */
+    --r-sm: 8px;
+    --r-md: 10px;
+    --r-lg: 14px;
+
+    /* Sidebar — retained from Phase D scaffold; not used by Phase E surfaces */
     --sidebar: oklch(0.985 0 0);
-
     --sidebar-foreground: oklch(0.145 0 0);
-
     --sidebar-primary: oklch(0.205 0 0);
-
     --sidebar-primary-foreground: oklch(0.985 0 0);
-
     --sidebar-accent: oklch(0.97 0 0);
-
     --sidebar-accent-foreground: oklch(0.205 0 0);
-
     --sidebar-border: oklch(0.922 0 0);
-
-    --sidebar-ring: oklch(0.708 0 0)
+    --sidebar-ring: oklch(0.708 0 0);
   }
-  .dark {
+  /* .dark block removed (Phase E, per spec §4 out-of-scope). */
 
-    --background: oklch(0.145 0 0);
-
-    --foreground: oklch(0.985 0 0);
-
-    --card: oklch(0.205 0 0);
-
-    --card-foreground: oklch(0.985 0 0);
-
-    --popover: oklch(0.205 0 0);
-
-    --popover-foreground: oklch(0.985 0 0);
-
-    --primary: oklch(0.922 0 0);
-
-    --primary-foreground: oklch(0.205 0 0);
-
-    --secondary: oklch(0.269 0 0);
-
-    --secondary-foreground: oklch(0.985 0 0);
-
-    --muted: oklch(0.269 0 0);
-
-    --muted-foreground: oklch(0.708 0 0);
-
-    --accent: oklch(0.269 0 0);
-
-    --accent-foreground: oklch(0.985 0 0);
-
-    --destructive: oklch(0.704 0.191 22.216);
-
-    --border: oklch(1 0 0 / 10%);
-
-    --input: oklch(1 0 0 / 15%);
-
-    --ring: oklch(0.556 0 0);
-
-    --chart-1: oklch(0.87 0 0);
-
-    --chart-2: oklch(0.556 0 0);
-
-    --chart-3: oklch(0.439 0 0);
-
-    --chart-4: oklch(0.371 0 0);
-
-    --chart-5: oklch(0.269 0 0);
-
-    --sidebar: oklch(0.205 0 0);
-
-    --sidebar-foreground: oklch(0.985 0 0);
-
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-
-    --sidebar-accent: oklch(0.269 0 0);
-
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-
-    --sidebar-border: oklch(1 0 0 / 10%);
-
-    --sidebar-ring: oklch(0.556 0 0)
-  }
   /* Direct CSS instead of @apply: v3's opacity-modulation can't resolve
      `outline-ring/50` when the color is a plain `var(--ring)` token.
      CSS variables defined above remain reachable everywhere. */
