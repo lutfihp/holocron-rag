@@ -10,7 +10,7 @@ export function AuditRow({ row }: { row: AuditRowType }) {
   return (
     <>
       <tr
-        className="border-t cursor-pointer hover:bg-gray-50"
+        className="border-t border-border cursor-pointer hover:bg-muted"
         onClick={() => setOpen((o) => !o)}
       >
         <td className="p-2 font-mono text-xs">
@@ -20,27 +20,27 @@ export function AuditRow({ row }: { row: AuditRowType }) {
         <td className="p-2 text-right">{row.latency_ms} ms</td>
         <td className="p-2">
           {row.had_refusal ? (
-            <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-xs">
+            <span className="px-2 py-0.5 rounded-sm bg-restricted text-restricted-foreground text-xs">
               refusal
             </span>
           ) : (
-            <span className="text-gray-400">—</span>
+            <span className="text-subtle">—</span>
           )}
         </td>
         <td className="p-2">
           {row.had_conflict ? (
-            <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-900 text-xs">
+            <span className="px-2 py-0.5 rounded-sm bg-conflict text-conflict-foreground text-xs">
               conflict
             </span>
           ) : (
-            <span className="text-gray-400">—</span>
+            <span className="text-subtle">—</span>
           )}
         </td>
         <td className="p-2 text-right">{row.event_count}</td>
       </tr>
       {open && (
         <tr>
-          <td colSpan={6} className="bg-gray-50 p-3">
+          <td colSpan={6} className="bg-muted p-3">
             <div className="space-y-2">
               {row.events.map((e, i) => (
                 <AuditEventDetail key={i} event={e} />

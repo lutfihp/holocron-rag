@@ -9,9 +9,9 @@ interface Props {
 
 export function AuditFilters({ value, onChange }: Props) {
   return (
-    <div className="flex flex-wrap gap-3 items-end bg-gray-50 p-3 rounded border">
+    <div className="flex flex-wrap gap-3 items-end bg-muted p-3 rounded-md border border-border">
       <label className="text-sm">
-        <div className="text-gray-600">Has refusal</div>
+        <div className="text-muted-foreground">Has refusal</div>
         <select
           value={value.has_refusal === undefined ? "" : String(value.has_refusal)}
           onChange={(e) =>
@@ -20,7 +20,7 @@ export function AuditFilters({ value, onChange }: Props) {
               has_refusal: e.target.value === "" ? undefined : e.target.value === "true",
             })
           }
-          className="border rounded px-2 py-1"
+          className="border border-border-strong rounded-md px-2 py-1"
         >
           <option value="">any</option>
           <option value="true">yes</option>
@@ -28,7 +28,7 @@ export function AuditFilters({ value, onChange }: Props) {
         </select>
       </label>
       <label className="text-sm">
-        <div className="text-gray-600">Has conflict</div>
+        <div className="text-muted-foreground">Has conflict</div>
         <select
           value={value.has_conflict === undefined ? "" : String(value.has_conflict)}
           onChange={(e) =>
@@ -37,7 +37,7 @@ export function AuditFilters({ value, onChange }: Props) {
               has_conflict: e.target.value === "" ? undefined : e.target.value === "true",
             })
           }
-          className="border rounded px-2 py-1"
+          className="border border-border-strong rounded-md px-2 py-1"
         >
           <option value="">any</option>
           <option value="true">yes</option>
@@ -45,30 +45,30 @@ export function AuditFilters({ value, onChange }: Props) {
         </select>
       </label>
       <label className="text-sm">
-        <div className="text-gray-600">Start</div>
+        <div className="text-muted-foreground">Start</div>
         <input
           type="datetime-local"
           value={value.start ?? ""}
           onChange={(e) =>
             onChange({ ...value, start: e.target.value || undefined })
           }
-          className="border rounded px-2 py-1"
+          className="border border-border-strong rounded-md px-2 py-1"
         />
       </label>
       <label className="text-sm">
-        <div className="text-gray-600">End</div>
+        <div className="text-muted-foreground">End</div>
         <input
           type="datetime-local"
           value={value.end ?? ""}
           onChange={(e) =>
             onChange({ ...value, end: e.target.value || undefined })
           }
-          className="border rounded px-2 py-1"
+          className="border border-border-strong rounded-md px-2 py-1"
         />
       </label>
       <button
         onClick={() => onChange({})}
-        className="text-sm underline text-gray-600 hover:text-gray-900"
+        className="text-sm underline text-muted-foreground hover:text-foreground"
       >
         clear
       </button>

@@ -29,11 +29,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [router]);
 
   if (allowed === null) {
-    return <div className="p-8 text-sm text-gray-500">Loading admin…</div>;
+    return <div className="p-8 text-sm text-muted-foreground">Loading admin…</div>;
   }
   if (!allowed) {
     return (
-      <div className="p-8 text-sm text-red-700">
+      <div className="p-8 text-sm text-destructive">
         Access denied. Admin views require director or executive role.
       </div>
     );

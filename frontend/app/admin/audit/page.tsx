@@ -45,20 +45,20 @@ export default function AuditViewerPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Audit log</h1>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted-foreground">
         One row per <code>correlation_id</code> (one /chat/ask = one row). Click any
         row to inspect the underlying query, retrieved IDs, refusal ref, response,
         and conflict subjects.
       </p>
       <AuditFilters value={filters} onChange={setFilters} />
       {error && (
-        <div className="border border-red-200 bg-red-50 text-red-700 rounded p-3 text-sm">
+        <div className="border border-destructive/40 bg-destructive/10 text-destructive rounded-md p-3 text-sm">
           {error}
         </div>
       )}
-      <div className="border rounded overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-muted">
             <tr>
               <th className="text-left p-2">Time (UTC)</th>
               <th className="text-left p-2">User</th>
@@ -71,7 +71,7 @@ export default function AuditViewerPage() {
           <tbody>
             {rows.length === 0 && !loading && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-500">
+                <td colSpan={6} className="p-4 text-center text-muted-foreground">
                   No audit rows for the current filter.
                 </td>
               </tr>
@@ -86,7 +86,7 @@ export default function AuditViewerPage() {
         <button
           onClick={() => load(false)}
           disabled={loading}
-          className="px-3 py-1.5 border rounded hover:bg-gray-50 text-sm"
+          className="px-3 py-1.5 border border-border rounded-md hover:bg-muted text-sm"
         >
           {loading ? "Loading…" : "Load more"}
         </button>
