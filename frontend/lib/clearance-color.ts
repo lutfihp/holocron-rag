@@ -3,13 +3,13 @@ import { Clearance } from "@/lib/types/chat";
 export function clearanceBadgeClasses(c: Clearance): string {
   switch (c) {
     case "public":
-      return "bg-green-100 text-green-800 border-green-300";
+      return "bg-public text-public-foreground border-public-border";
     case "restricted":
-      return "bg-amber-100 text-amber-800 border-amber-300";
+      return "bg-restricted text-restricted-foreground border-restricted-border";
     case "secret":
-      return "bg-red-100 text-red-800 border-red-300";
+      return "bg-secret text-secret-foreground border-secret-border";
     case "top_secret":
-      return "bg-red-900 text-red-50 border-red-950";
+      return "bg-top-secret text-top-secret-foreground border-top-secret-border";
   }
 }
 
@@ -19,5 +19,15 @@ export function clearanceLabel(c: Clearance): string {
     case "restricted": return "RESTRICTED";
     case "secret": return "SECRET";
     case "top_secret": return "TOP SECRET";
+  }
+}
+
+/** Dot color for the badge's leading dot. Matches the fg color for contrast. */
+export function clearanceDotClasses(c: Clearance): string {
+  switch (c) {
+    case "public": return "bg-public-foreground";
+    case "restricted": return "bg-restricted-foreground";
+    case "secret": return "bg-secret-foreground";
+    case "top_secret": return "bg-top-secret-foreground";
   }
 }
