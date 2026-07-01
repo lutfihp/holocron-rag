@@ -190,6 +190,52 @@ class AuditRepository:
             ).decode()
         return rows, next_cursor
 
+    async def list_recent_queries(
+        self,
+        *,
+        tenant_id: uuid.UUID,
+        user_id: uuid.UUID,
+        limit: int,
+    ) -> list[dict]:
+        """Return the user's last N query events with joined response latency
+        (null when the request is still in flight or the response event never
+        landed). Newest first."""
+
+        stmt = (
+            select(AuditEvent)
+            .where(
+                AuditEvent.tenant_id == tenant_id,
+                AuditEvent.user_id == user_id,
+                AuditEvent.event_type == "query",
+            )
+            .order_by(AuditEvent.created_at.desc())
+            .limit(limit)
+        )
+        query_events = (await self._session.execute(stmt)).scalars().all()
+        if not query_events:
+            return []
+
+        cids = [e.correlation_id for e in query_events]
+        lat_stmt = select(AuditEvent).where(
+            AuditEvent.tenant_id == tenant_id,
+            AuditEvent.correlation_id.in_(cids),
+            AuditEvent.event_type == "response",
+        )
+        response_events = (await self._session.execute(lat_stmt)).scalars().all()
+        latency_by_cid: dict[uuid.UUID, int | None] = {
+            e.correlation_id: e.latency_ms for e in response_events
+        }
+
+        return [
+            {
+                "correlation_id": e.correlation_id,
+                "query": e.query_text,
+                "occurred_at": e.created_at,
+                "latency_ms": latency_by_cid.get(e.correlation_id),
+            }
+            for e in query_events
+        ]
+
     @staticmethod
     def _serialize_event(e: AuditEvent) -> dict:
         return {

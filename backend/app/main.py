@@ -15,6 +15,7 @@ from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
 from app.api.healthz import router as healthz_router
 from app.api.retrieval import router as retrieval_router
+from app.api.user import router as user_router
 from app.core.config import get_settings
 from app.core.database import get_session
 from app.core.logging import configure_logging
@@ -90,3 +91,4 @@ app.include_router(retrieval_router)
 app.include_router(chat_router)
 app.include_router(healthz_router)
 app.include_router(admin_router)
+app.include_router(user_router)
