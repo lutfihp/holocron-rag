@@ -96,8 +96,8 @@ export default function ChatPage() {
       <TopNav user={{ username: me.username, role: me.role, max_clearance: me.max_clearance }} />
 
       {turns.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-md text-center">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="max-w-md text-center w-full">
             <div className="mb-4 text-sm text-muted-foreground">
               Welcome, {me.tenant.role_label}. Try a question:
             </div>

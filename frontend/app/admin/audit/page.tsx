@@ -57,8 +57,9 @@ export default function AuditViewerPage() {
         </div>
       )}
       <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
+            <thead className="bg-muted">
             <tr>
               <th className="text-left p-2">Time (UTC)</th>
               <th className="text-left p-2">User</th>
@@ -80,7 +81,8 @@ export default function AuditViewerPage() {
               <AuditRow key={r.correlation_id} row={r} />
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
       {cursor && (
         <button

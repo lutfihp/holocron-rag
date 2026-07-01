@@ -33,7 +33,7 @@ export default function MePage() {
   return (
     <>
       <TopNav user={{ username: user.username, role: user.role, max_clearance: user.max_clearance }} />
-      <main className="mx-auto max-w-2xl p-8 space-y-6">
+      <main className="mx-auto max-w-2xl p-4 sm:p-8 space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>{user.tenant.role_label}: {user.username}</CardTitle>

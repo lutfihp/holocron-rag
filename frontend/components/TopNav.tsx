@@ -39,12 +39,12 @@ export function TopNav({ user }: { user: TopNavUser }) {
   const tabs = TABS.filter((t) => (t.requiresAdmin ? isAdmin : true));
 
   return (
-    <header className="h-[62px] bg-card border-b border-border flex items-center gap-6 px-6">
-      <Link href="/me" className="flex items-center gap-2 font-mono text-[13px] font-semibold tracking-[0.18em]">
+    <header className="h-[62px] bg-card border-b border-border flex items-center gap-3 sm:gap-6 px-3 sm:px-6 whitespace-nowrap overflow-hidden">
+      <Link href="/me" className="flex items-center gap-2 font-mono text-[13px] font-semibold tracking-[0.18em] shrink-0">
         <Database className="w-4 h-4 text-primary" aria-hidden />
         HOLOCRON
       </Link>
-      <div className="w-px h-5 bg-border" aria-hidden />
+      <div className="hidden sm:block w-px h-5 bg-border" aria-hidden />
       <nav className="flex items-center gap-1">
         {tabs.map((t) => {
           const active = t.match(pathname);
@@ -52,21 +52,21 @@ export function TopNav({ user }: { user: TopNavUser }) {
             <Link
               key={t.href}
               href={t.href}
-              className={`px-3 py-2 text-sm relative ${
+              className={`px-2 sm:px-3 py-2 text-sm relative ${
                 active ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {t.label}
               {active && (
-                <span className="absolute left-3 right-3 -bottom-[1px] h-[2px] bg-primary" aria-hidden />
+                <span className="absolute left-2 sm:left-3 right-2 sm:right-3 -bottom-[1px] h-[2px] bg-primary" aria-hidden />
               )}
             </Link>
           );
         })}
       </nav>
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-3 shrink-0">
         <ClearanceBadge classification={user.max_clearance} />
-        <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground grid place-items-center font-mono text-[11px] font-semibold">
+        <div className="hidden sm:grid w-8 h-8 rounded-full bg-accent text-accent-foreground place-items-center font-mono text-[11px] font-semibold">
           {initials(user.username)}
         </div>
       </div>
