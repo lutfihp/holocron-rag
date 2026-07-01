@@ -8,16 +8,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // shadcn/ui token bridge: every color here resolves to a CSS variable
-      // defined in app/globals.css. Without this, utilities like `border-border`,
-      // `bg-background`, `text-foreground` produce "class does not exist" errors
-      // at build time.
       colors: {
         border: "var(--border)",
+        "border-strong": "var(--border-strong)",
         input: "var(--input)",
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
+        surface: "var(--surface)",
+        subtle: "var(--subtle)",
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
@@ -45,11 +44,38 @@ const config: Config = {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        // Semantic clearance/state — reserved for meaning; never decoration.
+        public: {
+          DEFAULT: "var(--public-bg)",
+          foreground: "var(--public-fg)",
+          border: "var(--public-border)",
+        },
+        restricted: {
+          DEFAULT: "var(--restricted-bg)",
+          foreground: "var(--restricted-fg)",
+          border: "var(--restricted-border)",
+        },
+        secret: {
+          DEFAULT: "var(--secret-bg)",
+          foreground: "var(--secret-fg)",
+          border: "var(--secret-border)",
+        },
+        "top-secret": {
+          DEFAULT: "var(--top-secret-bg)",
+          foreground: "var(--top-secret-fg)",
+          border: "var(--top-secret-border)",
+        },
+        conflict: {
+          DEFAULT: "var(--conflict-bg)",
+          foreground: "var(--conflict-fg)",
+          border: "var(--conflict-border)",
+        },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // Phase E radius scale (--r-sm/md/lg on top of legacy --radius).
+        sm: "var(--r-sm)",
+        md: "var(--r-md)",
+        lg: "var(--r-lg)",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans, var(--font-sans))"],
