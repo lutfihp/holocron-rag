@@ -19,9 +19,9 @@ export function ChatInput({
   }
 
   return (
-    <div className="flex gap-2 p-3 border-t border-slate-200">
+    <div className="flex gap-2 p-3 border-t border-border">
       <textarea
-        className="flex-1 resize-none border border-slate-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="flex-1 resize-none border border-border-strong rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         rows={2}
         placeholder="Ask the archives…"
         value={value}
@@ -35,7 +35,7 @@ export function ChatInput({
       />
       <button
         type="button"
-        className="bg-slate-800 text-white px-4 rounded-md text-sm disabled:opacity-40"
+        className="bg-foreground text-background px-4 rounded-md text-sm disabled:bg-muted-foreground disabled:opacity-40"
         disabled={disabled || value.trim().length === 0}
         onClick={submit}
       >

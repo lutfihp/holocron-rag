@@ -88,18 +88,18 @@ export default function ChatPage() {
   }
 
   if (!me) {
-    return <div className="p-6 text-sm text-slate-500">Loading…</div>;
+    return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   }
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="px-4 py-2 border-b border-slate-200 flex items-center gap-3 text-sm">
+      <header className="px-4 py-2 border-b border-border flex items-center gap-3 text-sm">
         <span className="font-semibold">{me.tenant.name}</span>
-        <span className="text-slate-400">·</span>
+        <span className="text-subtle">·</span>
         <span>{me.username}</span>
-        <span className="text-slate-400">·</span>
+        <span className="text-subtle">·</span>
         <ClearanceBadge classification={me.max_clearance} />
-        <span className="text-[11px] text-slate-500">
+        <span className="text-[11px] text-muted-foreground">
           ({me.departments.join(", ")})
         </span>
       </header>
@@ -107,7 +107,7 @@ export default function ChatPage() {
       {turns.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="max-w-md text-center">
-            <div className="mb-4 text-sm text-slate-600">
+            <div className="mb-4 text-sm text-muted-foreground">
               Welcome, {me.tenant.role_label}. Try a question:
             </div>
             <div className="flex flex-col gap-2">
@@ -115,7 +115,7 @@ export default function ChatPage() {
                 <button
                   key={q}
                   type="button"
-                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-left hover:bg-slate-50"
+                  className="border border-border rounded-lg px-3 py-2 text-sm text-left hover:bg-muted"
                   onClick={() => send(q)}
                   disabled={sending}
                 >

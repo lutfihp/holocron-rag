@@ -19,13 +19,13 @@ function renderAnswerText(text: string) {
 export function MessageAssistant({ payload }: { payload: ChatResponse }) {
   return (
     <div className="self-start w-full max-w-[95%] flex flex-col gap-3">
-      <div className="bg-slate-50 rounded-2xl rounded-tl-md p-4 text-sm leading-relaxed">
+      <div className="bg-card rounded-lg rounded-tl-md p-4 text-sm leading-relaxed">
         {renderAnswerText(payload.answer.text)}
       </div>
 
       {payload.citations.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1.5">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">
             Citations · {payload.citations.length}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -53,7 +53,7 @@ export function MessageAssistant({ payload }: { payload: ChatResponse }) {
       {payload.refusal && <RefusalNote refusal={payload.refusal} />}
 
       {payload.answer.cited_chunk_ids.length === 0 && payload.citations.length === 0 && (
-        <div className="text-[10px] text-slate-400 italic">
+        <div className="text-[10px] text-subtle italic">
           No citations attached to this answer.
         </div>
       )}

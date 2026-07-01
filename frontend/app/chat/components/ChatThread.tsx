@@ -27,7 +27,7 @@ export function ChatThread({
             return (
               <div
                 key={t.id}
-                className="self-start bg-slate-100 rounded-2xl rounded-tl-md p-4 text-sm text-slate-500 animate-pulse"
+                className="self-start bg-muted rounded-lg rounded-tl-md p-4 text-sm text-muted-foreground animate-pulse"
               >
                 Searching the archives…
               </div>
