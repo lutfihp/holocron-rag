@@ -50,3 +50,14 @@ async def get_audit(
         if r["user_id"]:
             r["user_id"] = str(r["user_id"])
     return {"rows": rows, "next_cursor": next_cursor}
+
+
+@router.get("/audit/summary")
+async def audit_summary(
+    session: AsyncSession = Depends(get_session),
+    tenant_ctx: TenantContext = Depends(get_tenant_context),
+) -> dict[str, int]:
+    _require_admin(tenant_ctx)
+    repo = AuditRepository(session)
+    today = _dt.datetime.now(_dt.timezone.utc).date()
+    return await repo.summary_counts(tenant_id=tenant_ctx.tenant_id, day_utc=today)

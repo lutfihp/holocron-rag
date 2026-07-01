@@ -252,3 +252,65 @@ async def test_admin_audit_endpoint_role_gated_for_employee(
 async def test_admin_audit_endpoint_unauthenticated_is_401(client):
     resp = await client.get("/admin/audit")
     assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_audit_summary_counts_today_only(
+    client, db_session, empire_tenant, admin_user
+):
+    repo = AuditRepository(db_session)
+    # 3 correlation groups today: 2 responses (one with conflict), 1 refusal.
+    today_query_cid = uuid.uuid4()
+    await repo.insert_query(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=today_query_cid, query_text="q1", retrieved_ids=[],
+    )
+    await repo.insert_response(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=today_query_cid, response_text="r1",
+        conflicts_found={"count": 1, "subjects": ["x"]}, latency_ms=42,
+    )
+    today_response_cid = uuid.uuid4()
+    await repo.insert_query(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=today_response_cid, query_text="q2", retrieved_ids=[],
+    )
+    await repo.insert_response(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=today_response_cid, response_text="r2",
+        conflicts_found=None, latency_ms=50,
+    )
+    refusal_cid = uuid.uuid4()
+    await repo.insert_query(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=refusal_cid, query_text="q3", retrieved_ids=[],
+    )
+    await repo.insert_refusal(
+        tenant_id=empire_tenant.id, user_id=admin_user.id,
+        correlation_id=refusal_cid, reference_id="ref", retrieved_ids=[],
+        withheld_ids=[],
+    )
+    await db_session.flush()
+
+    await _login(client, empire_tenant.id, admin_user.username)
+    resp = await client.get("/admin/audit/summary")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["queries_today"] == 2   # 2 correlation_ids with response
+    assert body["refusals_today"] == 1
+    assert body["conflicts_today"] == 1
+
+
+@pytest.mark.asyncio
+async def test_audit_summary_role_gated_for_employee(
+    client, empire_tenant, non_admin_user
+):
+    await _login(client, empire_tenant.id, non_admin_user.username)
+    resp = await client.get("/admin/audit/summary")
+    assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_audit_summary_unauthenticated_is_401(client):
+    resp = await client.get("/admin/audit/summary")
+    assert resp.status_code == 401

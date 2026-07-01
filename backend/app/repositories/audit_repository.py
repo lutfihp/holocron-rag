@@ -6,7 +6,7 @@ import json
 import uuid
 from typing import Optional, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.models import AuditEvent
@@ -235,6 +235,71 @@ class AuditRepository:
             }
             for e in query_events
         ]
+
+    async def summary_counts(
+        self,
+        *,
+        tenant_id: uuid.UUID,
+        day_utc: _dt.date,
+    ) -> dict[str, int]:
+        """Count today's audit activity for the summary strip.
+
+        Boundaries are UTC (matches audit_events.created_at). Each count is
+        DISTINCT correlation_id under a tenant's row set:
+          - queries_today: correlation_ids with a `response` event today
+          - refusals_today: correlation_ids with a `refusal` event today
+          - conflicts_today: correlation_ids whose response event has
+                             conflicts_found.count > 0 today
+
+        Conflicts filter reads the JSON payload in Python (SQL JSON path
+        would work but this is the ~1k/day scale documented in
+        list_grouped_by_correlation)."""
+
+        start = _dt.datetime.combine(day_utc, _dt.time.min, tzinfo=_dt.timezone.utc)
+        end = start + _dt.timedelta(days=1)
+
+        # queries_today: distinct correlation_ids that reached response
+        q_stmt = (
+            select(func.count(func.distinct(AuditEvent.correlation_id)))
+            .where(
+                AuditEvent.tenant_id == tenant_id,
+                AuditEvent.event_type == "response",
+                AuditEvent.created_at >= start,
+                AuditEvent.created_at < end,
+            )
+        )
+        queries_today = (await self._session.execute(q_stmt)).scalar_one()
+
+        # refusals_today: distinct correlation_ids with a refusal event
+        r_stmt = (
+            select(func.count(func.distinct(AuditEvent.correlation_id)))
+            .where(
+                AuditEvent.tenant_id == tenant_id,
+                AuditEvent.event_type == "refusal",
+                AuditEvent.created_at >= start,
+                AuditEvent.created_at < end,
+            )
+        )
+        refusals_today = (await self._session.execute(r_stmt)).scalar_one()
+
+        # conflicts_today: read response events, count those with conflicts.
+        c_stmt = select(AuditEvent).where(
+            AuditEvent.tenant_id == tenant_id,
+            AuditEvent.event_type == "response",
+            AuditEvent.created_at >= start,
+            AuditEvent.created_at < end,
+        )
+        responses = (await self._session.execute(c_stmt)).scalars().all()
+        conflicts_today = sum(
+            1 for e in responses
+            if e.conflicts_found and (e.conflicts_found.get("count", 0) > 0)
+        )
+
+        return {
+            "queries_today": queries_today,
+            "refusals_today": refusals_today,
+            "conflicts_today": conflicts_today,
+        }
 
     @staticmethod
     def _serialize_event(e: AuditEvent) -> dict:
