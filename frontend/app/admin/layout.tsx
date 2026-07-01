@@ -3,20 +3,23 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { TopNav } from "@/components/TopNav";
 import { api } from "@/lib/api";
+import type { UserSummary } from "@/lib/types";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [me, setMe] = useState<UserSummary | null>(null);
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     async function check() {
       try {
-        const me = await api.me();
+        const meResp = await api.me();
         if (cancelled) return;
-        const role = (me as { role?: string }).role;
-        if (role === "director" || role === "executive") setAllowed(true);
+        setMe(meResp);
+        if (meResp.role === "director" || meResp.role === "executive") setAllowed(true);
         else setAllowed(false);
       } catch {
         if (!cancelled) router.push("/login");
@@ -38,5 +41,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     );
   }
-  return <div className="p-8 max-w-6xl mx-auto">{children}</div>;
+  return (
+    <>
+      {me && <TopNav user={{ username: me.username, role: me.role, max_clearance: me.max_clearance }} />}
+      <div className="p-8 max-w-6xl mx-auto">{children}</div>
+    </>
+  );
 }

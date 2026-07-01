@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { ClearanceBadge } from '@/components/ClearanceBadge';
+import { TopNav } from '@/components/TopNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/lib/api';
@@ -30,32 +31,29 @@ export default function MePage() {
   if (!user) return null;
 
   return (
-    <main className="mx-auto max-w-2xl p-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{user.tenant.role_label}: {user.username}</CardTitle>
-          <CardDescription>{user.tenant.name}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Max clearance:</span>
-            <ClearanceBadge classification={user.max_clearance} />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Departments</p>
-            <p className="font-medium">{user.departments.join(', ') || '—'}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 pt-2">
-            <Button onClick={() => router.push('/chat')}>Open chat</Button>
-            {(user.role === 'director' || user.role === 'executive') && (
-              <Button variant="secondary" onClick={() => router.push('/admin/audit')}>
-                View audit log
-              </Button>
-            )}
-            <Button variant="outline" onClick={onLogout}>Sign out</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+    <>
+      <TopNav user={{ username: user.username, role: user.role, max_clearance: user.max_clearance }} />
+      <main className="mx-auto max-w-2xl p-8 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{user.tenant.role_label}: {user.username}</CardTitle>
+            <CardDescription>{user.tenant.name}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Max clearance:</span>
+              <ClearanceBadge classification={user.max_clearance} />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Departments</p>
+              <p className="font-medium">{user.departments.join(', ') || '—'}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <Button variant="outline" onClick={onLogout}>Sign out</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </>
   );
 }

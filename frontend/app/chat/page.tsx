@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LLMUnavailableError, postChatAsk } from "@/lib/chat-api";
-import { ClearanceBadge } from "@/components/ClearanceBadge";
+import { TopNav } from "@/components/TopNav";
 import { Clearance } from "@/lib/types/chat";
 import { ChatInput } from "./components/ChatInput";
 import { ChatThread, Turn } from "./components/ChatThread";
@@ -93,16 +93,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="px-4 py-2 border-b border-border flex items-center gap-3 text-sm">
-        <span className="font-semibold">{me.tenant.name}</span>
-        <span className="text-subtle">·</span>
-        <span>{me.username}</span>
-        <span className="text-subtle">·</span>
-        <ClearanceBadge classification={me.max_clearance} />
-        <span className="text-[11px] text-muted-foreground">
-          ({me.departments.join(", ")})
-        </span>
-      </header>
+      <TopNav user={{ username: me.username, role: me.role, max_clearance: me.max_clearance }} />
 
       {turns.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
