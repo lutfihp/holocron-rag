@@ -44,7 +44,7 @@ export function MessageAssistant({ payload }: { payload: ChatResponse }) {
           </div>
           <div className="flex flex-col gap-2">
             {payload.conflicts.map((c, i) => (
-              <ConflictCard key={i} conflict={c} />
+              <ConflictCard key={i} conflict={c} citations={payload.citations} />
             ))}
           </div>
         </div>
