@@ -1,4 +1,5 @@
 import React from "react";
+import { TriangleAlert } from "lucide-react";
 import { ChatResponse } from "@/lib/types/chat";
 import { CitationCard } from "./CitationCard";
 import { ConflictCard } from "./ConflictCard";
@@ -44,8 +45,9 @@ export function MessageAssistant({ payload }: { payload: ChatResponse }) {
 
       {payload.conflicts.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-red-700 mb-1.5">
-            ⚠ Conflicts detected · {payload.conflicts.length}
+          <div className="text-[10px] uppercase tracking-wider text-red-700 mb-1.5 flex items-center gap-1">
+            <TriangleAlert className="w-3 h-3" aria-hidden />
+            Conflicts detected · {payload.conflicts.length}
           </div>
           <div className="flex flex-col gap-2">
             {payload.conflicts.map((c, i) => (
