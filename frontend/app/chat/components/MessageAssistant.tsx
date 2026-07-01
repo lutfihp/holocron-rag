@@ -1,6 +1,7 @@
 import React from "react";
 import { TriangleAlert } from "lucide-react";
 import { ChatResponse } from "@/lib/types/chat";
+import { CitationChip } from "@/components/CitationChip";
 import { CitationCard } from "./CitationCard";
 import { ConflictCard } from "./ConflictCard";
 import { RefusalNote } from "./RefusalNote";
@@ -11,15 +12,7 @@ function renderAnswerText(text: string) {
     const m = token.match(/^\[(\d+)\]$/);
     if (!m) return <React.Fragment key={i}>{token}</React.Fragment>;
     const marker = parseInt(m[1], 10);
-    return (
-      <a
-        key={i}
-        href={`#cite-${marker}`}
-        className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[11px] font-semibold mx-0.5 hover:bg-blue-200"
-      >
-        [{marker}]
-      </a>
-    );
+    return <CitationChip key={i} marker={marker} />;
   });
 }
 
