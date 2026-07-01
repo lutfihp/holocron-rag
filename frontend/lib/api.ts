@@ -1,4 +1,6 @@
 import type { ApiError, UserSummary } from './types';
+import type { RecentQueriesResponse } from './types/user';
+import type { AuditSummary } from './types/audit-summary';
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -34,4 +36,7 @@ export const api = {
     }),
   me: () => request<UserSummary>('/auth/me'),
   logout: () => request<void>('/auth/session', { method: 'DELETE' }),
+  recentQueries: (limit = 5) =>
+    request<RecentQueriesResponse>(`/me/recent-queries?limit=${limit}`),
+  auditSummary: () => request<AuditSummary>('/admin/audit/summary'),
 };
